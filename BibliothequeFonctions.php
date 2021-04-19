@@ -36,5 +36,21 @@ function preTraitement($champ) {
         return $ret;
     }
 
+    function SQLinsert($request,$messageSucces){
+        $SQLconnection=mysqli_connect('localhost','root','','IO_TEST');
+        if(!$SQLconnection){
+            echo "<h1>Erreur SQL, merci de bien vouloir réessayer</h1>";
+        } else {
+            $resultat=mysqli_query($SQLconnection,$request);
+            if(!$resultat){
+                echo "<h1>Erreur SQL 2, merci de bien vouloir réessayer</h1>";
+                echo "<p>".mysqli_error($SQLconnection)."</p>";
+            } else {
+                echo "<h1>".$messageSucces."</h1>";
+            }
+        }
+        mysqli_close($SQLconnection);
+    }
+
   
 ?>

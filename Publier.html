@@ -6,7 +6,8 @@
 </head>
 <body>
     <h1>Publier un cours</h1>
-    <form action="PublierTraitement.php">
+    <form enctype="multipart/form-data" action="PublierTraitement.php" method='POST'>
+        <input type="hidden" name="MAX_FILE_SIZE" value="100000">
         <input type="file" name="contenu"> <p>Votre cours</p>
         <br><br>
         <input type="file" name="apercu"> <p>Votre apercu</p>

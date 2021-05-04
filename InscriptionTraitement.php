@@ -47,7 +47,8 @@ if(!$connex){
         }
     }
 }
-echo "<form action='inscription.html'> <input type='submit' size='20' value='Retour'> </form>"
+echo "<form action='Inscription.html'> <input type='submit' size='20' value='Retour'> </form>"
+
 ?>
 <meta charset='UTF-8'>
 <form action='FilActualite.php' method='post'> <input type='submit' size='20' value="Accéder à la page d'accueil"> <input type=hidden name='pseudo' value="<?php echo $_REQUEST['pseudo']; ?>"> </form>

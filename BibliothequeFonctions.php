@@ -1,21 +1,30 @@
 <?php
 
-    
-// gère le header de toutes les pages du site
-function teteDePage() { 
+// variables globales
+$cheminPublications = "../Publications";
+
+
+// gère la tete de chaque page affichée sur le site (infos meta et bandeau)
+// prend en argument un String qui sera le nom de l'onglet
+function teteDePage($nomOnglet) { 
     ?>
     <!DOCTYPE html>
     <html lang="fr">
     <head>
         <meta charset="utf-8">
-        <title>Noodle</title>
-        <link rel="stylesheet" href="style0.css">
+        <title><?php echo $nomOnglet;?></title>
+        <?php
+        //<link rel="stylesheet" href="style0.css">
+        ?>
     </head>
+    <body>
     <?php
 }
 
+// gère le bas de chaque page affichée sur le site
 function piedDePage() { 
     ?>
+    </body>
     </html> 
     <?php
 }
@@ -59,7 +68,9 @@ function probleme($arr) {
     return $ret;
 }
 
-// fait une requête ??? Inutile
+// fonction qui fait une requête ? Fonction inutilisée. 
+// faire plutot une fonction qui renvoie si la connexion réussie ou échoue
+// et une 2e fonction qui renvoie le résultat de la requête
 function SQLinsert($request, $messageSucces){
     $SQLconnection=mysqli_connect('localhost','root','','IO_TEST');
     if(!$SQLconnection){
@@ -75,22 +86,6 @@ function SQLinsert($request, $messageSucces){
     }
     //mysqli_close($SQLconnection);
 }
-
-    function SQLinsert($request,$messageSucces){
-        $SQLconnection=mysqli_connect('localhost','root','','IO_TEST');
-        if(!$SQLconnection){
-            echo "<h1>Erreur SQL, merci de bien vouloir réessayer</h1>";
-        } else {
-            $resultat=mysqli_query($SQLconnection,$request);
-            if(!$resultat){
-                echo "<h1>Erreur SQL 2, merci de bien vouloir réessayer</h1>";
-                echo "<p>".mysqli_error($SQLconnection)."</p>";
-            } else {
-                echo "<h1>".$messageSucces."</h1>";
-            }
-        }
-        mysqli_close($SQLconnection);
-    }
 
   
 ?>

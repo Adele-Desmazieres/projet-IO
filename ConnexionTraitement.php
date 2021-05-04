@@ -1,7 +1,7 @@
 <?php
 
     require_once("BibliothequeFonctions.php");
-
+    session_start();
     if(count(probleme($_POST))==0) {
         #Nom de DB: IO_TEST
         $connex=mysqli_connect('localhost','root','','IO_TEST');

@@ -1,7 +1,8 @@
 <?php
- require_once("BibliothequeFonctions.php");
+require_once("BibliothequeFonctions.php");
+teteDePage("Noodle : inscription");
 
-    // affiche le contenu de $arr
+// affiche le contenu de $arr
 function reponseRecap($arr) {
     foreach ($arr as $clef => $val) {
         if ($clef != "mdp") {
@@ -14,7 +15,7 @@ if(count(probleme($_POST))==0) {
     reponseRecap($_POST);
 }
 
-#Nom de DB: IO_TEST
+# nom de DB: IO_TEST
 $connex=mysqli_connect('localhost','root','','IO_TEST');
 
 if(!$connex){
@@ -47,8 +48,16 @@ if(!$connex){
         }
     }
 }
-echo "<form action='Inscription.html'> <input type='submit' size='20' value='Retour'> </form>"
-
 ?>
-<meta charset='UTF-8'>
-<form action='FilActualite.php' method='post'> <input type='submit' size='20' value="Accéder à la page d'accueil"> <input type=hidden name='pseudo' value="<?php echo $_REQUEST['pseudo']; ?>"> </form>
+
+<form action='Inscription.html'>
+    <input type='submit' size='20' value='Retour'> 
+</form>
+<form action='FilActualite.php' method='post'> 
+    <input type='submit' size='20' value="Accéder à la page d'accueil"> 
+    <input type=hidden name='pseudo' value="<?php echo $_REQUEST['pseudo']; ?>"> 
+</form>
+
+<?php
+piedDePage();
+?>

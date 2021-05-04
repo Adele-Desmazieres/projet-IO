@@ -1,7 +1,6 @@
 <?php
-
+//phpinfo();
 require_once("BibliothequeFonctions.php");
-
 
 //Il manque encore le code pour ajouter l'aperçu, je voudrais le mettre dans le même tableau SQL en tant qu'attribut
 //et dans le même dossier que le fichier lié
@@ -11,53 +10,68 @@ require_once("BibliothequeFonctions.php");
   // le nom du fichier (basename donne le nom de la derniere composante)
   $fichier = basename($_FILES['contenu']['name']);
   $apercuFichier = basename($_FILES['apercu']['name']);
-  $taille_maxi = 100000;
+  $taille_maxi = 2000000;
   $tailleAper=filesize($_FILES['apercu']['tmp_name']);
   $taille = filesize($_FILES['contenu']['tmp_name']);
   $tailleSQL=$taille/1000;
+
   $extensions = array('.odt', '.pdf', '.jpg', '.jpeg', '.png');
-  $extension = strrchr($_FILES['contenu']['name'], '.'); 
   $extensionsAper = array('.bmp', '.gif', '.jpg', '.jpeg', '.png');
-  $typeAper= strrchr($_FILES['apercu']['name'], '.'); 
+
+  $extension = strrchr($_FILES['contenu']['name'], '.'); 
+  $extensionAper= strrchr($_FILES['apercu']['name'], '.'); 
+
   $erreur = "";
   $ID="Salut";
 
   // début des vérifications de sécurité...
 
   // si l'extension n'est pas dans le tableau
-  if(!in_array($extension, $extensions) || !in_array($typeAper, $extensionsAper)) { 
-      $erreur = $erreur."<br>Erreur : les formats de fichier acceptés sont odt, png, pdf, jpg, jpeg";
+  if(!in_array($extension, $extensions) || !in_array($extensionAper, $extensionsAper)) { 
+      $erreur = $erreur."<br>Erreur : les formats de fichier acceptés sont odt, png, pdf, jpg, jpeg pour le fichier principal, et bmp, gif, jpg, jpeg, png pour l'apercu.";
   }
 
   // si le fichier est de mauvaise taille
   if($taille>$taille_maxi || $tailleAper>$taille_maxi) {
-      $erreur = $erreur."<br>Erreur : le fichier est trop gros";
+      $erreur = $erreur."<br>Erreur : le fichier est trop gros.";
   }
 
   // s'il n'y a pas d'erreur, on upload
  
               
       // on formate le nom du fichier ici...
+      $apercuFichier = strtr($apercuFichier, 
+            'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïðòóôõöùúûüýÿ', 
+            'AAAAAACEEEEIIIIOOOOOUUUUYaaaaaaceeeeiiiioooooouuuuyy');
+      $apercuFichier = preg_replace('/([^.a-z0-9]+)/i', '-', $apercuFichier);
       $fichier = strtr($fichier, 
             'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïðòóôõöùúûüýÿ', 
             'AAAAAACEEEEIIIIOOOOOUUUUYaaaaaaceeeeiiiioooooouuuuyy');
       $fichier = preg_replace('/([^.a-z0-9]+)/i', '-', $fichier);
 
-      $connex = mysqli_connect('localhost','root','','IO_TEST');
+      // fonction qui connecte au SQL, renvoie un booléen qui dit si ca fonctionne
+      $connex = mysqli_connect('localhost','root','','IO_TEST'); 
       $description = mysqli_real_escape_string($connex,$_POST['description']);
 
-      // si on n'arrive pas à se connecter à la base de données
+      // si on n'arrive pas à se connecter à la base de données, erreur
       if (!$connex) { 
           $erreur = $erreur."<br>Erreur : impossible de se connecter à la base de données";
-      } else {
-        
-          // chercher l'ID maximum
-          $requeteIDmax="SELECT MAX(id) FROM Publications";
-          $resultIDmax= mysqli_query($connex,$requeteIDmax);
-          if(!$resultIDmax) { $erreur=$erreur."<br>Problème d'ID"; }
-          $ligne=mysqli_fetch_row($resultIDmax); $ID=$ligne[0]+1;
-          
 
+	  // sinon chercher l'ID maximum
+      } else {
+          $requeteIDmax = "SELECT MAX(id) FROM Publications";
+          $resultIDmax = mysqli_query($connex, $requeteIDmax);
+          if(!$resultIDmax) { 
+          	$erreur = $erreur."<br>Problème d'ID"; 
+          }
+          $ligne = mysqli_fetch_row($resultIDmax); 
+
+          if ($ligne[0] == NULL) {
+          	$ID = 1;
+          } else {
+          	$ID = $ligne[0]+1;
+          }
+          
           // insérer ici le restant de code pour ajout des stats du fichier dans le tableau Publications de la DB
           $requeteInserFichier = "INSERT INTO Publications (nom, description, type, size, auteur, date, id) VALUES ("."'".$fichier."'".", "."'".$description."'".", "."'".$extension."'".", ".$tailleSQL.", "."'".$auteur."'".", "."'".date('Y-m-d H:i:s')."'".", ".$ID.");"; // une chaine de caractères correspondant à la requête SQL qui va modifier le tableau
           $resultInserFichier = mysqli_query($connex,$requeteInserFichier);
@@ -69,10 +83,12 @@ require_once("BibliothequeFonctions.php");
           } else {
               
               //echo $_FILES['contenu']['tmp_name'];
-              //echo '<pre>'; print_r($_FILES); echo '</pre>';
+              echo '<pre>'; 
+              print_r($_FILES); 
+              echo '</pre>';
               
               // déplace le fichier uploadé dans le dossier Publications
-              if (move_uploaded_file($_FILES['contenu']['tmp_name'], $dossier.strval($ID).$extension) && move_uploaded_file($_FILES['apercu']['tmp_name'], $dossier.strval($ID)."A".$extension)) { // si la fonction renvoie TRUE, c'est que ça a fonctionné...
+              if (move_uploaded_file($_FILES['contenu']['tmp_name'], $dossier.strval($ID).$extension) && move_uploaded_file($_FILES['apercu']['tmp_name'], $dossier.strval($ID)."A".$extensionAper)) { // si la fonction renvoie TRUE, c'est que ça a fonctionné...
                   echo 'Upload effectué avec succès !'; 
                             ?>
 

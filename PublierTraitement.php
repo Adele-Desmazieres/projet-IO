@@ -1,5 +1,7 @@
 <?php
+
 require_once("BibliothequeFonctions.php");
+
 
 //Il manque encore le code pour ajouter l'aperçu, je voudrais le mettre dans le même tableau SQL en tant qu'attribut
 //et dans le même dossier que le fichier lié

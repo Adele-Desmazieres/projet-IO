@@ -16,11 +16,12 @@ if ( !connexion ) {
 }
 
 // REFAIRE ICI POUR TRAITER LE RESULTAT ET LE TRANSFROMER EN TABLEAU
-$resultat = mysqli_fetch_
+//$resultat = mysqli_fetch_???
+
 
 ?>
 
-<h1>Page de profil de <?php echo $resultat["Pseudo"];?></h1>
+<h1>Page de profil de <?php echo $resultat["pseudo"];?></h1>
 
 
 

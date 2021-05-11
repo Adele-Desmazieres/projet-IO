@@ -1,7 +1,7 @@
 <?php
 
 // variables globales
-$cheminPublications = "../Publications";
+$cheminPublications = "../Publications/";
 
 
 // gère la tete de chaque page affichée sur le site (infos meta et bandeau)
@@ -29,7 +29,15 @@ function piedDePage() {
     <?php
 }
 
-// prétraite un String de manière à empêcher l'injection de code malveillante
+
+// Verifie la connexion pour les comptes
+function verificationConnexion(){
+    session_start();
+    if($_SESSION['userid']== NULL){  exit ("<a href='Frontpage.php'> Vous n'etes pas connecté</a>"); }
+}
+
+
+// prétraite un String de manière à empêcher l'injection de code malveillant
 function preTraitement($champ) {
     if (!empty($champ)) {
         $champ=trim($champ);
@@ -50,12 +58,12 @@ function SQLconnectTest($host, $pseudo, $psw) {
     }
 }
 
-
+/*
 function afficherPublications($arr) {
     foreach($arr as $var) {
         echo $var."<br>";
     }
-}
+} */
 
 // renvoie un tableau contenant les champs qui sont vides après validation d'un formulaire
 function probleme($arr) {

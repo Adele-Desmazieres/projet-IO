@@ -3,6 +3,17 @@
 // variables globales
 $cheminPublications = "../Publications/";
 
+//gère l'affichage des liens pour télécharger les publications et l'affichage de leur aperçu
+//Entrées : Resultat de requête (déjà fetch), Résultat de requête (brut)
+function afficherPublications($TabDePubli,$resultatFonc){
+    while($TabDePubli) {
+        ?><br><a href='<?php  echo $cheminPublications.$TabDePubli['id'].$TabDePubli['type']; ?>'> <?php echo $TabDePubli['nom']; ?> </a>
+          <img src='<?php echo $cheminPublications.$TabDePubli['id']."A".$TabDePubli['type']; ?>'>
+          <p><?php echo $TabDePubli['description']; ?></p><br>
+        <?php
+        $TabDePubli = mysqli_fetch_assoc($resultatFonc);
+    }
+}
 
 // gère la tete de chaque page affichée sur le site (infos meta et bandeau)
 // prend en argument un String qui sera le nom de l'onglet

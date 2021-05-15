@@ -1,6 +1,7 @@
 <?php
 //phpinfo();
 require_once("BibliothequeFonctions.php");
+verificationConnexion();
 teteDePage("Noodle : publication");
 
 // Cette page enregistre les 2 documents (le cours et son aperçu) dans le dossier Publications,
@@ -96,7 +97,7 @@ teteDePage("Noodle : publication");
           //echo "LA BAS";
 
           // insérer ici le restant de code pour ajout des stats du fichier dans le tableau Publications de la DB
-          $requeteInserFichier = "INSERT INTO Publications (nom, description, type, size, auteur, date, id) VALUES ("."'".$fichier."'".", "."'".$description."'".", "."'".$extension."'".", ".$tailleSQL.", "."'".$auteur."'".", "."'".date('Y-m-d H:i:s')."'".", ".$id.");"; // une chaine de caractères correspondant à la requête SQL qui va modifier le tableau
+          $requeteInserFichier = "INSERT INTO Publications (nom, description, type, size, auteur, date, id) VALUES ("."'".$fichier."'".", "."'".$description."'".", "."'".$extension."'".", ".$tailleSQL.", "."'".$auteur[0]."'".", "."'".date('Y-m-d H:i:s')."'".", ".$id.");"; // une chaine de caractères correspondant à la requête SQL qui va modifier le tableau
           echo "MIA";
           echo $requeteInserFichier;
           $resultInserFichier = mysqli_query($connex,$requeteInserFichier);

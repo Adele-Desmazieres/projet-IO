@@ -1,6 +1,7 @@
 <?php
 require_once("BibliothequeFonctions.php");
 teteDePage("Noodle : inscription");
+session_start();
 
 // affiche le contenu de $arr
 function reponseRecap($arr) {
@@ -22,6 +23,7 @@ $connex=mysqli_connect('localhost','root','','IO_TEST');
 
 if(!$connex){
     echo "<h1>Erreur SQL, merci de bien vouloir réessayer</h1>";
+    session_destroy();
 } else {
     #verif de securité
     $pseudoSQL=mysqli_real_escape_string($connex,$_POST['pseudo']);
@@ -33,6 +35,7 @@ if(!$connex){
           $resultIDmax = mysqli_query($connex, $requeteIDmax);
           if(!$resultIDmax) { 
             $erreur = $erreur."<br>Erreur : impossible d'associer un nouvel id à cet utilisateur"; 
+            session_destroy();
           }
           $ligne = mysqli_fetch_row($resultIDmax); 
 
@@ -52,13 +55,17 @@ if(!$connex){
     $ligneDeRes=mysqli_fetch_row($resultVerif);
     if($ligneDeRes[0]==$pseudoSQL) {
         echo "<h1>Nom d'utilisateur déjà utilisé, merci de bien vouloir en choisir un autre</h1>";
+        session_destroy();
     } else {
         $result=mysqli_query($connex,$req);
         if(!$result){
             echo "<h1>Erreur SQL 2, merci de bien vouloir réessayer.</h1>";
             echo "<p>".mysqli_error($connex)."</p>";
+            session_destroy();
         } else {
             echo "<h1>Vous êtes bien inscrit dans la base de données.</h1>";
+            $_SESSION['pseudo']=$_POST['pseudo'];
+            $_SESSION['userid']=$mdpSQL[1];
             
         }
     }

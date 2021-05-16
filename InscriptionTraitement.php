@@ -2,6 +2,24 @@
 require_once("BibliothequeFonctions.php");
 teteDePage("Noodle : inscription");
 session_start();
+$requeteAdmin=21;
+
+//vérifie qu'on a pas affaire à un petit chenapan
+if(isset($_POST['admincode']) && $_POST['admincode']!=NULL){
+    if($_POST['admincode']!=$masterkey){
+        echo "<h1>Vous n'êtes pas un administrateur, échec critique</h1>";
+        ?>
+        <form action="Inscription.php" method='POST'>
+            <input type="submit" value="Retour à l'inscription">
+        </form>
+        <br>
+        <?php
+        session_destroy();
+        exit();
+    } else {
+        $requeteAdmin="INSERT INTO admin VALUES (";
+    }
+}
 
 // affiche le contenu de $arr
 function reponseRecap($arr) {
@@ -46,6 +64,7 @@ if(!$connex){
           }
     
 
+    }
     #Requete d'insertion dans la table Users
     $req="INSERT INTO Users (pseudo, mdp, mail, birthdate, userid) VALUES("."'".$pseudoSQL."'".", "."'".$mdpSQL."'".", "."'".$mailSQL."'"." , "."'".$_POST['naissance']."'".",".$id.");";
 
@@ -63,13 +82,33 @@ if(!$connex){
             echo "<p>".mysqli_error($connex)."</p>";
             session_destroy();
         } else {
+            //Insertion dans la table prive si nécessaire
+            if( isset($_POST["prive"]) && $_POST["prive"]=="Oui") {
+                $requetePrive="INSERT INTO prive VALUES (".$id.");";
+                $resultatPrive=mysqli_query($connex,$requetePrive);
+                if(!$resultatPrive) { $erreur=$erreur."<br>Erreur: Insertion prive mal faite"; }
+            }
+    
+            //fin de la requete d'insertion dans la table admin
+            if($requeteAdmin!=21){
+                $requeteAdmin=$requeteAdmin.$id.");";
+                $resultatAdmin=mysqli_query($connex,$requeteAdmin);
+                if(!$resultatAdmin){
+                    echo "<h1 class='error'>Erreur SQL 2, merci de bien vouloir réessayer.</h1>";
+                    echo "<p>".mysqli_error($connex)."</p>";
+                    session_destroy();
+                } else {
+                    $_SESSION['admin']=1;
+                }
+            }
+            
             echo "<h1>Vous êtes bien inscrit dans la base de données.</h1>";
             $_SESSION['pseudo']=$_POST['pseudo'];
             $_SESSION['userid']=$mdpSQL[1];
             
         }
     }
-}
+
 ?>
 
 <form action='Frontpage.php'>

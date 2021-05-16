@@ -5,6 +5,8 @@ teteDePage("Noodle : profil");
 $DejaAbo=-1;
 $Qui="";
 $erreur="";
+$isAdmin=FALSE;
+$isPrive=FALSE;
 
 //A qui appartient cette page de profil
 if(isset($_POST['self'])){
@@ -16,19 +18,31 @@ if(isset($_POST['self'])){
 }
 
 //Déclaration des requêtes SQL
+$requeteVerifAdmin="SELECT * FROM admin WHERE (id=".$Qui.");";
 $requeteDesabo="DELETE FROM Abonnements WHERE (Abonne=".$_SESSION['userid'].",".$Qui.");";
 $requeteInfos="SELECT * FROM Users WHERE (userid=".$Qui.");";
 $requeteAbonnement="INSERT INTO Abonnements VALUES (".$_SESSION['userid'].",".$Qui.");";
-$requetePublications = "SELECT nom, description, type, id FROM Publications WHERE (auteur=".$Qui.");";
+$requetePublications = "SELECT nom, description, type, id FROM Publications WHERE (auteur=".$Qui.") ORDER BY date DESC;";
 $requeteAbonnes= "SELECT count(*) FROM Abonnements WHERE (ABONNEMENT='".$Qui."');";
 $requeteNmbAbonnement="SELECT count(*) FROM Abonnements WHERE (ABONNE='".$Qui."');";
 $requeteVerif="SELECT * FROM Abonnements WHERE (ABONNE=".$_SESSION['userid']." AND ABONNEMENT=".$Qui.");";
+if(isset($_POST['supprimer'])) { $requeteSupprimer="DELETE FROM Publications WHERE (id=".$_POST['supprimer'].");"; }
+$requeteIsPrivé="SELECT * FROM prive WHERE (id=".$Qui.");"; //A finir
 $connexion = mysqli_connect('localhost','root','','IO_TEST'); 
+
 //$description = mysqli_real_escape_string($connex,$_POST['description']);
 
 if ( !$connexion ) {
 	$erreur = $erreur."<br>Erreur : impossible de se connecter au SQL.";
 } else {
+
+	//Supprimer une publication
+	if(isset($_POST['supprimer'])){
+		$resultatSupprimer=mysqli_query($connexion,$requeteSupprimer);
+		if(!$resultatSupprimer){ $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
+		else { $filename=$cheminPublications.$_POST['supprimer'];
+			unlink($filename.$_POST['supprimerType']);unlink ($filename."A".$_POST['supprimerType']);}
+	}
 
 	//Recherche des infos du profil
 	$resultatInfos = mysqli_query($connexion, $requeteInfos);
@@ -62,21 +76,50 @@ if ( !$connexion ) {
 	$resultatNmbAbonnement=mysqli_query($connexion, $requeteNmbAbonnement);
 	if ( !$resultatNmbAbonnement ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
 
-	//Affichage des infos du profil
-	?>
-	<h1>Page de profil de <?php echo $resultatInfos['pseudo'];?></h1><br>
-	<p>Date de naissance : <?php echo $resultatInfos['birthdate'];?></p>
-	<p>Adresse mail de contact : <?php echo $resultatInfos['mail'];?></p>
-	<?php
-
-	//Affichage des publications
-	$ligneDePubli=mysqli_fetch_assoc($resultat);
-	afficherPublications($ligneDePubli,$resultat);
+	//Verification d'état administrateur du profil
+	$resultatVerifAdmin=mysqli_query($connexion,$requeteVerifAdmin);
+	if(!$resultatVerifAdmin){ $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
+	else { $resultatVerifAdmin=mysqli_fetch_row($resultatVerifAdmin);
+			if(isset($resultatVerifAdmin)){
+				$isAdmin=TRUE;
+			}
+	}
 
 	//Vérification du "déjà abonné"
 	$resultatVerif=mysqli_fetch_row($resultatVerif);
 	if(isset($resultatVerif[0])){ $DejaAbo=FALSE; }
 	else { $DejaAbo=TRUE; }
+
+	//Vérification dans la table SQL prive
+	$resultatIsPrive=mysqli_query($connexion,$requeteIsPrivé);
+	if(!$resultatIsPrive){ $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion);}
+	else { $resultatIsPrive=mysqli_fetch_row($resultatIsPrive);
+			if($resultatIsPrive!=NULL){
+				if($resultatIsPrive[0]==$Qui){ $isPrive=TRUE; } 
+			}
+	}
+
+	//Affichage des infos du profil
+	?>
+	<h1>Page de profil de <?php echo $resultatInfos['pseudo']; if($isAdmin){ echo " (Administrateur)"; } ?></h1><br>
+	<p>Date de naissance : <?php echo $resultatInfos['birthdate'];?></p>
+	<p>Adresse mail de contact : <?php if(($isPrive && $DejaAbo) || !$isPrive)echo $resultatInfos['mail'];?></p>
+	<?php
+
+	//Affichage des publications si l'utilisateur est abonné ou si c'est lui même
+	
+	//Conditions de visualisation
+	if($isPrive) {
+		if($DejaAbo) {
+			$ligneDePubli=mysqli_fetch_assoc($resultat);
+			afficherPublications($ligneDePubli,$resultat,"Profil.php");
+		} else {
+			echo "Ce compte est privé, abonnez vous pour regarder ses publications";
+		}	
+	} else {
+		$ligneDePubli=mysqli_fetch_assoc($resultat);
+		afficherPublications($ligneDePubli,$resultat,"Profil.php");
+	}
 
 	//Affichage du nombre d'abonnés + d'abonnements
 	$resultatAbonnes=mysqli_fetch_row($resultatAbonnes);

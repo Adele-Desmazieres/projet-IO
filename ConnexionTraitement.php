@@ -27,6 +27,22 @@
                 $_SESSION['pseudo']=$_POST['pseudo'];
                 $_SESSION['userid']=$mdpSQL[1];
 
+                #Vérif état administrateur
+                $requeteVerifAdmin="SELECT * FROM admin WHERE (id=".$mdpSQL[1].");";
+                $resultatVerifAdmin=mysqli_query($connex,$requeteVerifAdmin);
+                if(!$resultatVerifAdmin) {
+                    echo "Problème SQL, merci de bien vouloir réessayer";
+                    session_destroy();
+                    exit("Problème administrateur");
+                } else {
+                    $resultatVerifAdmin=mysqli_fetch_row($resultatVerifAdmin);
+                    if($resultatVerifAdmin[0]==$_SESSION['userid']) {
+                        $_SESSION['admin']=1;
+                    } else {
+                        $_SESSION['admin']=0;
+                    }
+                }
+
                 header('Location: FilActualite.php');
                 exit();
             } else {

@@ -2,11 +2,12 @@
 
 // variables globales
 $cheminPublications = "../Publications/";
+$masterkey="AeMstadl26nMMXX%";
 
 //gère l'affichage des liens pour télécharger les publications et l'affichage de leur aperçu
-//Entrées : Resultat de requête (déjà fetch), Résultat de requête (brut)
-function afficherPublications($TabDePubli, $resultatFonc){
-    global $cheminPublications;
+//Entrées : Resultat de requête (déjà fetch), Résultat de requête (brut), nom du fichier de la page actuelle
+function afficherPublications($TabDePubli, $resultatFonc, $pageActuelle){
+    global $cheminPublications, $Qui;
     while($TabDePubli) {?>
 
         <p>Télécharger 
@@ -14,8 +15,20 @@ function afficherPublications($TabDePubli, $resultatFonc){
           <img src='<?php echo $cheminPublications.$TabDePubli['id']."A".$TabDePubli['type']; ?>' height="64px">
         </p>
         <p><?php echo $TabDePubli['description']; ?></p>
+        <?php if($_SESSION['admin']==1 || isset($_POST['self'])){
+            ?><form action='<?php echo $pageActuelle; ?>' method='POST'>
+                <?php if(isset($Qui)) { ?> <input type='hidden' name='id' value=<?php echo $Qui; } else { ?>>
+                <input type='hidden' name='id' value=<?php echo $TabDePubli['auteur']; } ?> >
+                <input type='hidden' name='supprimer' value='<?php echo $TabDePubli['id']; ?>'>
+                <input type='hidden' name='supprimerType' value='<?php echo $TabDePubli['type']; ?>' >
+                <input type='submit' value='Supprimer la publication'>
+            </form>
+            <?php
+        }
+        ?>
         
         <?php
+        echo isset($Qui);
         $TabDePubli = mysqli_fetch_assoc($resultatFonc);
     }
 }

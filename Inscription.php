@@ -22,6 +22,14 @@ teteDePage("Noodle : inscription");
                 <td>Date de naissance</td>
                 <td><input type="date" name="naissance" required></td>
             </tr>
+            <tr>
+                <td>Désigner ce compte comme privé</td>
+                <td><input type="checkbox" name="prive" value="Oui"></td>
+            </tr>
+            <tr>
+                <td>Code administrateur (Merci de ne remplir ce champ que si vous savez ce que vous faîtes)</td>
+                <td><input type="password" name="admincode"></td>
+            </tr>
             </tbody></table>
 
             <p>

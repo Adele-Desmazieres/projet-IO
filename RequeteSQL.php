@@ -25,10 +25,11 @@ function creationRequete($attributs, $table, $conditions) {
 	}
 	// on retire la virgule en trop
 	$sqlRequete = substr($sqlRequete, 0, strlen($sqlRequete)-1);
-	$sqlRequete = $sqlRequete." FROM ".$table." WHERE";
+	$sqlRequete = $sqlRequete." FROM ".$table.", Apercus WHERE Apercus.id=Publications.id AND";
 
 	// on ajoute les conditions séparées par AND
 	foreach ($conditions as $clef => $val) {
+		//$clef = $cl;
 
 		// si c'est un string : clef LIKE "%val%" AND
 		if (is_string($val)) {
@@ -59,17 +60,22 @@ function creationRequete($attributs, $table, $conditions) {
 	return $sqlRequete;
 }
 
+
+
+
+
+/*
 function afficherApercuCompte($donneesCompte) { 
 	$nbrAbonnés = sqli_query();
 
 	?>
 	<div>
 		<p><?php echo $donneesCompte["pseudo"];?></p>
-		<p>Abonnés <?php echo $donneesCompte[]
+		<p>Abonnés <?php echo $donneesCompte[];?></p>
 	</div>
 	<?php
 }
-
+*/
 
 /*
 $userid = array(1, 3);

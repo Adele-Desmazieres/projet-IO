@@ -22,7 +22,7 @@ $requeteVerifAdmin="SELECT * FROM admin WHERE (id=".$Qui.");";
 $requeteDesabo="DELETE FROM Abonnements WHERE (Abonne=".$_SESSION['userid'].",".$Qui.");";
 $requeteInfos="SELECT * FROM Users WHERE (userid=".$Qui.");";
 $requeteAbonnement="INSERT INTO Abonnements VALUES (".$_SESSION['userid'].",".$Qui.");";
-$requetePublications = "SELECT nom, description, type, id FROM Publications WHERE (auteur=".$Qui.") ORDER BY date DESC;";
+$requetePublications = "SELECT nom, description, type, Publications.id, typeA, nomA FROM Publications, Apercus WHERE (auteur= ".$Qui."AND Publications.id=Apercus.id) ORDER BY date DESC;";
 $requeteAbonnes= "SELECT count(*) FROM Abonnements WHERE (ABONNEMENT='".$Qui."');";
 $requeteNmbAbonnement="SELECT count(*) FROM Abonnements WHERE (ABONNE='".$Qui."');";
 $requeteVerif="SELECT * FROM Abonnements WHERE (ABONNE=".$_SESSION['userid']." AND ABONNEMENT=".$Qui.");";
@@ -112,13 +112,43 @@ if ( !$connexion ) {
 	if($isPrive) {
 		if($DejaAbo) {
 			$ligneDePubli=mysqli_fetch_assoc($resultat);
-			afficherPublications($ligneDePubli,$resultat,"Profil.php");
+			while ($ligneDePubli) {
+				afficherPublication($ligneDePubli);
+				if($_SESSION['admin']==1 || isset($_POST['self'])){
+            ?><form action='<?php echo $pageActuelle; ?>' method='POST'>
+                <?php if(isset($Qui)) { ?> <input type='hidden' name='id' value=<?php echo $Qui; } else { ?>>
+                <input type='hidden' name='id' value=<?php echo $ligneDePubli['auteur']; } ?> >
+                <input type='hidden' name='supprimer' value='<?php echo $ligneDePubli['id']; ?>'>
+                <input type='hidden' name='supprimerType' value='<?php echo $ligneDePubli['type']; ?>' >
+                <input type='submit' value='Supprimer la publication'>
+            </form>
+            <?php
+        		}
+ 
+				$ligneDePubli=mysqli_fetch_assoc($resultat);
+			}
+
+			//afficherPublications($ligneDePubli,$resultat,"Profil.php");
 		} else {
 			echo "Ce compte est privé, abonnez vous pour regarder ses publications";
 		}	
 	} else {
 		$ligneDePubli=mysqli_fetch_assoc($resultat);
-		afficherPublications($ligneDePubli,$resultat,"Profil.php");
+			while ($ligneDePubli) {
+				afficherPublication($ligneDePubli);
+				if($_SESSION['admin']==1 || isset($_POST['self'])){
+            ?><form action='<?php echo $pageActuelle; ?>' method='POST'>
+                <?php if(isset($Qui)) { ?> <input type='hidden' name='id' value=<?php echo $Qui; } else { ?>>
+                <input type='hidden' name='id' value=<?php echo $ligneDePubli['auteur']; } ?> >
+                <input type='hidden' name='supprimer' value='<?php echo $ligneDePubli['id']; ?>'>
+                <input type='hidden' name='supprimerType' value='<?php echo $ligneDePubli['type']; ?>' >
+                <input type='submit' value='Supprimer la publication'>
+            </form>
+            <?php
+        		}
+ 
+				$ligneDePubli=mysqli_fetch_assoc($resultat);
+			}
 	}
 
 	//Affichage du nombre d'abonnés + d'abonnements

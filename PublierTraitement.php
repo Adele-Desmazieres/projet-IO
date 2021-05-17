@@ -20,6 +20,7 @@ teteDePage("Noodle : publication");
   $apercuFichier = basename($_FILES['apercu']['name']);
   $taille_maxi = 2000000; // taille max 2 Mo
   $tailleAper = filesize($_FILES['apercu']['tmp_name']);
+  $tailleAperKo = $tailleAper/1000;
   $taille = filesize($_FILES['contenu']['tmp_name']);
   $tailleSQL = $taille/1000;
 
@@ -94,16 +95,16 @@ teteDePage("Noodle : publication");
           	$id = $ligne[0]+1;
           }
           
-          //echo "LA BAS";
-
           // insérer ici le restant de code pour ajout des stats du fichier dans le tableau Publications de la DB
-          $requeteInserFichier = "INSERT INTO Publications (nom, description, type, size, auteur, date, id) VALUES ("."'".$fichier."'".", "."'".$description."'".", "."'".$extension."'".", ".$tailleSQL.", "."'".$auteur[0]."'".", "."'".date('Y-m-d H:i:s')."'".", ".$id.");"; // une chaine de caractères correspondant à la requête SQL qui va modifier le tableau
-          echo "MIA";
+          $requeteInserFichier = "INSERT INTO Publications (nom, description, type, size, auteur, date, id) VALUES ('".$fichier."', '".$description."', '".$extension."', ".$tailleSQL.", '".$auteur[0]."', '".date('Y-m-d H:i:s')."', ".$id.");"; // une chaine de caractères correspondant à la requête SQL qui va modifier le tableau
+          $requeteInserApercu = "INSERT INTO Apercus (nomA, typeA, id) VALUES ('".$apercuFichier."', '".$extensionAper."', ".$id.");";
+          
           echo $requeteInserFichier;
-          $resultInserFichier = mysqli_query($connex,$requeteInserFichier);
+          $resultInserFichier = mysqli_query($connex, $requeteInserFichier);
+          $resultInserAper = mysqli_query($connex, $requeteInserApercu); 
 
           // si la requête est fausse
-          if (!$resultInserFichier) {
+          if (!$resultInserFichier || !$resultInserAper) {
               $erreur = $erreur."<br>Erreur : requête SQL fausse : ";
               $erreur = $erreur.mysqli_error($connex);
 
@@ -114,8 +115,14 @@ teteDePage("Noodle : publication");
               echo '</pre>';
               echo $cheminPublications.strval($id).$extension;
 
+              $contenuMoved = move_uploaded_file($_FILES['contenu']['tmp_name'], $cheminPublications.strval($id).$extension);
+              $apercuMoved = move_uploaded_file($_FILES['apercu']['tmp_name'], $cheminPublications.strval($id)."A".$extensionAper);
+
+              echo "<br>".$contenuMoved.":<br>";
+              echo $apercuMoved.":<br>";
+
               // déplace le fichier uploadé dans le dossier Publications
-              if (move_uploaded_file($_FILES['contenu']['tmp_name'], $cheminPublications.strval($id).$extension) && move_uploaded_file($_FILES['apercu']['tmp_name'], $cheminPublications.strval($id)."A".$extensionAper)) { // si la fonction renvoie TRUE, c'est que ça a fonctionné...
+              if ($contenuMoved && $apercuMoved) { // si la fonction renvoie TRUE, c'est que ça a fonctionné...
                   echo 'Upload effectué avec succès !'; 
                   ?>
 
@@ -126,6 +133,8 @@ teteDePage("Noodle : publication");
                   <?php   
               } else { //Sinon (la fonction renvoie FALSE).   
                   $erreur = $erreur."<br>Echec de l'upload !";
+                  $resultatEffacer = mysqli_query($connex, "DELETE FROM Publications WHERE id=".$id.";");
+                  echo $resultatEffacer." ".mysqli_error($connex);
                   ?>
 
                   <form action='Publier.php'>

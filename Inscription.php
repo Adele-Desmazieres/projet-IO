@@ -8,15 +8,15 @@ teteDePage("Noodle : inscription");
             <table><tbody>
             <tr>
                 <td>Pseudo</td>
-                <td><input type="text" name="pseudo" placeholder="Votre magnifique pseudonyme ici" required></td>
+                <td><input type="text" name="pseudo" placeholder="Votre pseudonyme" required></td>
             </tr>
             <tr>
                 <td>Mot de passe</td>
-                <td><input type="password" name="mdp" minlength="8" placeholder="Chut ! C'est votre mot de passe" required></td>
+                <td><input type="password" name="mdp" minlength="8" placeholder="Votre mot de passe" required></td>
             </tr>
             <tr>
-                <td>Mail</td>
-                <td><input type="email" name="mail" placeholder="arty.dumont@mail.abc" required></td>
+                <td>Adresse e-mail</td>
+                <td><input type="email" name="mail" placeholder="Votre mail" required></td>
             </tr>
             <tr>
                 <td>Date de naissance</td>
@@ -27,7 +27,7 @@ teteDePage("Noodle : inscription");
                 <td><input type="checkbox" name="prive" value="Oui"></td>
             </tr>
             <tr>
-                <td>Code administrateur (Merci de ne remplir ce champ que si vous savez ce que vous faîtes)</td>
+                <td>Code administrateur (merci de ne remplir ce champ que si vous savez ce que vous faites)</td>
                 <td><input type="password" name="admincode"></td>
             </tr>
             </tbody></table>

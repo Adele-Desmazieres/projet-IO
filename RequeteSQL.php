@@ -4,14 +4,17 @@ teteDePage("Requete SQL");
 
 // tente de se connecter à la BDD, et renvoie une erreur sinon
 function sqlConnexion() {
+	global $mdpBDD;
+	global $nomBDD;
 	// renvoie un objet de connexion, ou false si echec
 	// prend en argument : serveur, utilisateur, mdp, nom de la BDD
-	$connex = mysqli_connect('localhost', 'root', '', 'IO_TEST');
+	$connex = mysqli_connect('localhost', 'root', $mdpBDD, $nomBDD);
 	if (!$connex) {
 		echo "<br>Erreur : impossible de se connecter à la BDD (".$mysqli_connect_error().").";
 	}
 	return $connex;
 }
+
 
 // renvoie un String correspondant à cette requete :
 // SELECT $attributs FROM $table WHERE $clef1 LIKE "%$val1%" AND $clef2=$val2 AND...
@@ -25,7 +28,7 @@ function creationRequete($attributs, $table, $conditions) {
 	}
 	// on retire la virgule en trop
 	$sqlRequete = substr($sqlRequete, 0, strlen($sqlRequete)-1);
-	$sqlRequete = $sqlRequete." FROM ".$table.", Apercus WHERE Apercus.id=Publications.id AND";
+	$sqlRequete = $sqlRequete." FROM ".$table." WHERE ";
 
 	// on ajoute les conditions séparées par AND
 	foreach ($conditions as $clef => $val) {

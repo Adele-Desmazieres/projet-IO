@@ -2,7 +2,6 @@
 require_once("BibliothequeFonctions.php");
 teteDePage("Noddle : recherche");
 
-
 ?>
 
 <h1>Rechercher</h1>
@@ -39,29 +38,29 @@ teteDePage("Noddle : recherche");
 		}
 	?>>
 	</p>
-	<p>Auteur <input type="search" name="auteur" placeholder="Pseudo de l'auteur" value=<?php 
-		if (isset($_POST["auteur"])) {
-			echo "\"".$_POST["auteur"]."\"";
+	<p>Auteur <input type="search" name="pseudo" placeholder="Pseudo de l'auteur" value=<?php 
+		if (isset($_POST["pseudo"])) {
+			echo "\"".$_POST["pseudo"]."\"";
 		}
 	?>>
 	</p>
-	<p>Type de fichier
+	<p>Type de l'article principal
 		<ul>
 		<?php
 		$extensions = array('.odt', '.pdf', '.jpg', '.jpeg', '.png', '.txt');
 		foreach ($extensions as $ext) { ?>
 			<li><input 
 					type="checkbox" 
-					name="type[]" 
+					name="extensionArticle[]" 
 					value=<?php echo "\"".$ext."\""; // une valeur dans le tableau des extensions
 					// qu'on pré-coche si précédemment cochée
-					if (isset($_POST["type"])) {
-						foreach ($_POST["type"] as $precedenteCochee) {
+					if (isset($_POST["extensionArticle"])) {
+						foreach ($_POST["extensionArticle"] as $precedenteCochee) {
 							if ($precedenteCochee == $ext) {
 								echo " checked";
 							}
 						}
-					// sauf si on l'initialise avec toutes de cochées
+					// sauf si non initialisé : on l'initialise avec toutes de cochées
 					} else {
 						echo " checked";
 					}
@@ -79,6 +78,7 @@ teteDePage("Noddle : recherche");
 
 <h2>Résultats de la recherche</h2>
 
+
 <pre>
 <?php print_r($_POST); ?>
 </pre>
@@ -86,7 +86,8 @@ teteDePage("Noddle : recherche");
 <?php
 
 require_once("RequeteSQL.php");
-
+// crée la connexion sql
+$connex = sqlConnexion();
 
 // on prétraite le tableau POST pour obtenir
 // $attributs : tableau indicé des attributs sélectionnés
@@ -95,14 +96,21 @@ require_once("RequeteSQL.php");
 if (isset($_POST["table"])) {
 	$table = $_POST["table"];
 	if ($_POST["table"] == "Users") {
-		$attributs = array("pseudo");
+		$attributs = array("pseudo, mail, visibilite, admin");
 	} else {
 		$attributs = array("*"); 
 	}
 
 	$conditions = array();
 	foreach ($_POST as $clef => $val) {
-		if ($clef != "table" AND $val != NULL) {
+		if ($clef == "pseudo") {
+			$useridSQL = mysqli_query($connex, "SELECT userid FROM Users WHERE pseudo LIKE '%".$val."%';");
+    		$userid = mysqli_fetch_assoc($useridSQL);
+    		while ($userid) {
+				$conditions["userid"][] = $userid["userid"];
+				$userid = mysqli_fetch_assoc($useridSQL);
+			}
+		} else if ($clef != "table" AND $val != NULL) {
 			$conditions[$clef] = $val;
 		}
 	}
@@ -112,23 +120,26 @@ if (isset($_POST["table"])) {
 $requete = creationRequete($attributs, $table, $conditions);
 echo $requete;
 
-// crée la connexion sql
-$connex = sqlConnexion();
 if ($connex) {
+	//echo "<br>connexion réussie";
 	$resultat = mysqli_query($connex, $requete);
+	//echo mysqli_error($connex);
 	$ligneResultat = mysqli_fetch_assoc($resultat);
 
 	// parcourt et affiche toutes les publications
 	if ($table == "Publications") {
-		echo "<br>TRUE";
 		while($ligneResultat) {
-			afficherPublication($ligneResultat);
+			// sauf celles qui sont en privé (visibilité 0)
+			//echo "<br>visibilité : ".$ligneResultat["visibilite"]; 
+			if ($ligneResultat["visibilite"] == 1) {
+				afficherPublication($connex, $ligneResultat);
+			}
 			$ligneResultat = mysqli_fetch_assoc($resultat);
 		}
 	// parcourt et affiche tous les comptes
 	} else {
 		while($ligneResultat) {
-			afficherApercuCompte($ligneResultat);
+			afficherApercuCompte($connex, $ligneResultat);
 			$ligneResultat = mysqli_fetch_assoc($resultat);
 		}
 	}

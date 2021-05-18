@@ -2,6 +2,25 @@
 require_once("BibliothequeFonctions.php");
 verificationConnexion();
 teteDePage("Noodle : profil");
+
+
+
+//Fonction qui affiche le bouton supprimer
+//Prend en entrée un tableau associatif de résultat SQL dans Publications
+function afficheSupprimer($ligneDePubli) {
+	global $pageActuelle;
+	?>
+	<div>
+	<form action='<?php echo $pageActuelle; ?>' method='POST'>
+        <input type='hidden' name='id' value=<?php echo $ligneDePubli['userid']; ?> >
+        <input type='hidden' name='supprimer' value='<?php echo $ligneDePubli['id']; ?>'>
+        <input type='hidden' name='supprimerType' value='<?php echo $ligneDePubli['extensionArticle']; ?>' >
+		<input type='hidden' name='supprimerAperType' value='<?php echo $ligneDePubli['extensionApercu']; ?>' >
+        <input type='submit' value='Supprimer la publication'>
+    </form></div>
+	<?php
+}
+
 $DejaAbo=-1;
 $Qui="";
 $erreur="";
@@ -19,17 +38,15 @@ if(isset($_POST['self'])){
 }
 
 //Déclaration des requêtes SQL
-$requeteVerifAdmin="SELECT * FROM admin WHERE (id=".$Qui.");";
-$requeteDesabo="DELETE FROM Abonnements WHERE (Abonne=".$_SESSION['userid'].",".$Qui.");";
+$requeteDesabo="DELETE FROM Abonnements WHERE (Abonne=".$_SESSION['userid'].", Abonnement=".$Qui.");";
 $requeteInfos="SELECT * FROM Users WHERE (userid=".$Qui.");";
+$requetePublications="SELECT * FROM Publications WHERE userid=".$Qui.";";
 $requeteAbonnement="INSERT INTO Abonnements VALUES (".$_SESSION['userid'].",".$Qui.");";
-$requetePublications = "SELECT auteur, nom, description, type, Publications.id, typeA, nomA FROM Publications, Apercus WHERE (auteur= ".$Qui." AND Publications.id=Apercus.id) ORDER BY date DESC;";
 $requeteAbonnes= "SELECT count(*) FROM Abonnements WHERE (ABONNEMENT='".$Qui."');";
 $requeteNmbAbonnement="SELECT count(*) FROM Abonnements WHERE (ABONNE='".$Qui."');";
 $requeteVerif="SELECT * FROM Abonnements WHERE (ABONNE=".$_SESSION['userid']." AND ABONNEMENT=".$Qui.");";
 if(isset($_POST['supprimer'])) { $requeteSupprimer="DELETE FROM Publications WHERE (id=".$_POST['supprimer'].");"; }
-$requeteIsPrivé="SELECT * FROM prive WHERE (id=".$Qui.");"; //A finir
-$connexion = mysqli_connect('localhost','root','','IO_TEST'); 
+$connexion = mysqli_connect('localhost','root',$mdpBDD,$nomBDD); 
 
 //$description = mysqli_real_escape_string($connex,$_POST['description']);
 
@@ -39,22 +56,25 @@ if ( !$connexion ) {
 
 	//Supprimer une publication
 	if(isset($_POST['supprimer'])){
-		$resultatSupprimer=mysqli_query($connexion,$requeteSupprimer);
-		if(!$resultatSupprimer){ $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
-		$resultatSupprimerBis=mysqli_query($connexion,"DELETE FROM Apercus WHERE id=".$_POST['supprimer'].");");
-		if(!$resultatSupprimerBis){ $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
-		else { $filename=$cheminPublications.$_POST['supprimer'];
-			unlink($filename.$_POST['supprimerType']);unlink ($filename."A".$_POST['supprimerAperType']);}
+		$filename=$cheminPublications.$_POST['supprimer'];
+		$isSupprime=unlink($filename.$_POST['supprimerType']);
+		$isAperSupprime=unlink ($filename."A".$_POST['supprimerAperType']);
+		if($isSupprime && $isAperSupprime) {
+			$resultatSupprimer=mysqli_query($connexion,$requeteSupprimer);
+			if(!$resultatSupprimer) { echo mysqli_error($connexion); }
+		} else {
+			echo "<br>Un des fichiers n'a pas pu être supprimé";
+		}
 	}
 
 	//Recherche des infos du profil
 	$resultatInfos = mysqli_query($connexion, $requeteInfos);
-	if ( !$resultatInfos ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
+	if ( !$resultatInfos ) { echo $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
 	$resultatInfos=mysqli_fetch_assoc($resultatInfos);
 	
 	// donne un booléen qui dit si la requête a fonctionnée ou pas
 	$resultat = mysqli_query($connexion, $requetePublications);
-	if ( !$resultat ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion);
+	if ( !$resultat ) { echo $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion);
 	echo mysqli_error($connexion); }
 	
 	//On vérifie ici si on est déjà abonné au profil
@@ -81,13 +101,7 @@ if ( !$connexion ) {
 	if ( !$resultatNmbAbonnement ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
 
 	//Verification d'état administrateur du profil
-	$resultatVerifAdmin=mysqli_query($connexion,$requeteVerifAdmin);
-	if(!$resultatVerifAdmin){ $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
-	else { $resultatVerifAdmin=mysqli_fetch_row($resultatVerifAdmin);
-			if(isset($resultatVerifAdmin)){
-				$isAdmin=TRUE;
-			}
-	}
+	if($resultatInfos['admin']==1) { $isAdmin=TRUE; }
 
 	//Vérification du "déjà abonné"
 	$resultatVerif=mysqli_fetch_row($resultatVerif);
@@ -95,13 +109,7 @@ if ( !$connexion ) {
 	else { $DejaAbo=TRUE; }
 
 	//Vérification dans la table SQL prive
-	$resultatIsPrive=mysqli_query($connexion,$requeteIsPrivé);
-	if(!$resultatIsPrive){ $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion);}
-	else { $resultatIsPrive=mysqli_fetch_row($resultatIsPrive);
-			if($resultatIsPrive!=NULL){
-				if($resultatIsPrive[0]==$Qui){ $isPrive=TRUE; } 
-			}
-	}
+	if($resultatInfos['visibilite']==0) { $isPrive=1; }
 
 	//Affichage des infos du profil
 	?>
@@ -119,14 +127,7 @@ if ( !$connexion ) {
 			while ($ligneDePubli) {
 				afficherPublication($ligneDePubli);
 				if($_SESSION['admin']==1 || isset($_POST['self'])){
-            ?><form action='<?php echo $pageActuelle; ?>' method='POST'>
-                <input type='hidden' name='id' value=<?php echo $ligneDePubli['auteur']; ?> >
-                <input type='hidden' name='supprimer' value='<?php echo $ligneDePubli['id']; ?>'>
-                <input type='hidden' name='supprimerType' value='<?php echo $ligneDePubli['type']; ?>' >
-				<input type='hidden' name='supprimerAperType' value='<?php echo $ligneDePubli['typeA']; ?>' >
-                <input type='submit' value='Supprimer la publication'>
-            </form>
-            <?php
+					afficheSupprimer($ligneDePubli);
         		}
  
 				$ligneDePubli=mysqli_fetch_assoc($resultat);
@@ -141,14 +142,7 @@ if ( !$connexion ) {
 			while ($ligneDePubli) {
 				afficherPublication($ligneDePubli);
 				if($_SESSION['admin']==1 || isset($_POST['self'])){
-            ?><form action='<?php echo $pageActuelle; ?>' method='POST'>
-                <input type='hidden' name='id' value=<?php echo $ligneDePubli['auteur']; ?> >
-                <input type='hidden' name='supprimer' value='<?php echo $ligneDePubli['id']; ?>'>
-                <input type='hidden' name='supprimerType' value='<?php echo $ligneDePubli['type']; ?>' >
-				<input type='hidden' name='supprimerAperType' value='<?php echo $ligneDePubli['typeA']; ?>' >
-                <input type='submit' value='Supprimer la publication'>
-            </form>
-            <?php
+					afficheSupprimer($ligneDePubli);
         		}
  
 				$ligneDePubli=mysqli_fetch_assoc($resultat);
@@ -186,9 +180,20 @@ if($Qui!=$_SESSION['userid'] && $DejaAbo){
 </form>
 </p>
 
+
+
 <?php
 }
+//Bouton pour revenir au fil d'actualité
+?>
 
+<div>
+<form action='FilActualite.php'>
+    <input type='submit' name='retour' value="Retour au fil d'actualité">
+</form>
+</div>
+
+<?php
 piedDePage();
 ?>
 

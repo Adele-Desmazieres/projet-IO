@@ -1,8 +1,10 @@
 <?php
 
 // variables globales
-$cheminPublications = "../Publications/";
-$masterkey="AeMstadl26nMMXX%";
+$cheminPublications = "../Publications/"; // chemin dossier de Publications
+$masterkey = "AeMstadl26nMMXX%"; // code pour etre admin
+$nomBDD = "NoodleBDD";
+$mdpBDD = "";
 
 //gère l'affichage des liens pour télécharger les publications et l'affichage de leur aperçu
 //Entrées : Resultat de requête (déjà fetch), Résultat de requête (brut), nom du fichier de la page actuelle
@@ -33,18 +35,38 @@ function afficherPublications($TabDePubli, $resultatFonc, $pageActuelle){
     }
 }
 
-function afficherPublication($donneesPubli) { 
+// affiche une seule publication, avec le pseudo de son auteur
+function afficherPublication($connex, $donneesPubli) { 
     global $cheminPublications;
+    $pseudo = pseudoDeId($connex, $donneesPubli["userid"]);
     ?>
+
+    <div>
+    <p><strong><?php echo $pseudo;?></strong></p>
     <p>Télécharger 
-    <a href=<?php echo "\"".$cheminPublications.$donneesPubli['id'].$donneesPubli['type']."\"";?>>
-        <?php echo $donneesPubli['nom'];?>
-    </a></p>
+        <a href=<?php echo "\"".$cheminPublications.$donneesPubli['id'].$donneesPubli['extensionArticle']."\"";?>>
+        <?php echo $donneesPubli['nomArticle'];?>
+        </a>
+    </p>
     <p>
-        <img src='<?php echo $cheminPublications.$donneesPubli['id']."A".$donneesPubli['typeA'];?>' alt="Impossible d'afficher l'image <?php echo $donneesPubli['nomA'];?>" height="64px">
+        <a href=<?php echo "\"".$cheminPublications.$donneesPubli['id']."A".$donneesPubli['extensionApercu']."\"";?>>
+        <img src="<?php echo $cheminPublications.$donneesPubli['id'].'A'.$donneesPubli['extensionApercu'];?>" alt="Impossible d'afficher l'aperçu <?php echo $donneesPubli['nomApercu'];?>" height="200px">
+        </a>
     </p>
     <p><?php echo "Description : ".$donneesPubli['description']; ?></p>
+    </div>
     <?php
+}
+
+// renvoie le pseudo correspondant à un userid
+function pseudoDeId($connex, $userid) {
+    $pseudoSQL = mysqli_fetch_assoc(mysqli_query($connex, "SELECT pseudo FROM Users WHERE Users.userid="."'".$userid."';"));
+    $pseudo = $pseudoSQL["pseudo"];
+}
+
+// affiche l'apercu d'un compte, prend en arguement sa ligne sql, et une connexion sql
+function afficherApercuCompte($connex, $donneesCompte) {
+    
 }
 
 
@@ -74,11 +96,11 @@ function piedDePage() {
 }
 
 
-// Verifie la connexion pour les comptes
+// Verifie la connexion de celui qui tente d'accéder au site
 function verificationConnexion(){
     session_start();
     if($_SESSION['userid']== NULL){  
-        exit ("<a href='Frontpage.php'> Vous n'etes pas connecté</a>"); 
+        exit ("<p class='erreur'>Vous n'etes pas connecté, vous pouvez retourner à la <a href='Frontpage.php'>page d'accueil</a> ou à celle de <a href='Connexion.php'>connexion.</a></p>"); 
     }
 }
 

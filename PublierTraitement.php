@@ -24,14 +24,18 @@ teteDePage("Noodle : publication");
   $taille = filesize($_FILES['contenu']['tmp_name']);
   $tailleSQL = $taille/1000;
 
-  $extensions = array('.odt', '.pdf', '.jpg', '.jpeg', '.png');
-  $extensionsAper = array('.bmp', '.gif', '.jpg', '.jpeg', '.png');
+  $extensions = array('.odt', '.pdf', '.jpg', '.jpeg', '.png', '.PNG');
+  $extensionsAper = array('.bmp', '.gif', '.jpg', '.jpeg', '.png', '.PNG');
 
   $extension = strrchr($_FILES['contenu']['name'], '.'); 
   $extensionAper = strrchr($_FILES['apercu']['name'], '.'); 
 
   $erreur = "";
   $id = 0;
+  $visibilite=1;
+  if($_POST['visibilite']=='prive') { $visibilite=0;}
+
+  //echo $fichier;
 
   // début des vérifications de sécurité...
 
@@ -59,14 +63,14 @@ teteDePage("Noodle : publication");
 
       // fonction qui connecte au SQL, renvoie un booléen qui dit si ca fonctionne
       // mysqli_connect(serveur, utilisateur, mdp, bdd)
-      $connex = mysqli_connect('localhost','root','','IO_TEST'); 
+      $connex = mysqli_connect('localhost','root',$mdpBDD,$nomBDD); 
       
       // récupère la description du document
       $description = mysqli_real_escape_string($connex, $_POST['description']);
       // récupère l'identifiant de l'utilisateur dans la variable $auteur
       $auteur = mysqli_query($connex, "SELECT userid FROM Users WHERE pseudo=\"".$pseudo."\";");
       $auteur = mysqli_fetch_row($auteur);
-      echo $auteur[0];
+      //echo $auteur[0];
 
       if ($auteur == NULL) {
       	$erreur = $erreur."<br>Erreur : auteur non reconnu.";
@@ -96,30 +100,29 @@ teteDePage("Noodle : publication");
           }
           
           // insérer ici le restant de code pour ajout des stats du fichier dans le tableau Publications de la DB
-          $requeteInserFichier = "INSERT INTO Publications (nom, description, type, size, auteur, date, id) VALUES ('".$fichier."', '".$description."', '".$extension."', ".$tailleSQL.", '".$auteur[0]."', '".date('Y-m-d H:i:s')."', ".$id.");"; // une chaine de caractères correspondant à la requête SQL qui va modifier le tableau
-          $requeteInserApercu = "INSERT INTO Apercus (nomA, typeA, id) VALUES ('".$apercuFichier."', '".$extensionAper."', ".$id.");";
-          
-          echo $requeteInserFichier;
+          $requeteInserFichier = "INSERT INTO Publications (id, userid, nomArticle, extensionArticle, nomApercu, extensionApercu, description, date, visibilite) VALUES (".$id.", ".$_SESSION['userid'].", '".$fichier."', '".$extension."', '".$apercuFichier."', '".$extensionAper."', '".$description."', '".date("Y-m-d H:i:s")."', ".$visibilite.");";
+          // echo $requeteInserFichier;
           $resultInserFichier = mysqli_query($connex, $requeteInserFichier);
-          $resultInserAper = mysqli_query($connex, $requeteInserApercu); 
+          
 
           // si la requête est fausse
-          if (!$resultInserFichier || !$resultInserAper) {
+          if (!$resultInserFichier) {
+              // echo "<br>ICI";
               $erreur = $erreur."<br>Erreur : requête SQL fausse : ";
               $erreur = $erreur.mysqli_error($connex);
 
           } else {
               //echo $_FILES['contenu']['tmp_name'];
-              echo '<pre>'; 
+              /*echo '<pre>'; 
               print_r($_FILES); 
               echo '</pre>';
-              echo $cheminPublications.strval($id).$extension;
+              echo $cheminPublications.strval($id).$extension; */
 
               $contenuMoved = move_uploaded_file($_FILES['contenu']['tmp_name'], $cheminPublications.strval($id).$extension);
               $apercuMoved = move_uploaded_file($_FILES['apercu']['tmp_name'], $cheminPublications.strval($id)."A".$extensionAper);
 
-              echo "<br>".$contenuMoved.":<br>";
-              echo $apercuMoved.":<br>";
+              //echo "<br>".$contenuMoved.":<br>";
+              //echo $apercuMoved.":<br>";
 
               // déplace le fichier uploadé dans le dossier Publications
               if ($contenuMoved && $apercuMoved) { // si la fonction renvoie TRUE, c'est que ça a fonctionné...
@@ -150,7 +153,7 @@ teteDePage("Noodle : publication");
    
   
     echo $erreur;
-    echo error_reporting(E_ALL);
+    //echo error_reporting(E_ALL);
 
 piedDePage();
 

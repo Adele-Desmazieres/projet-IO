@@ -7,6 +7,7 @@ teteDePage("Noddle : recherche");
 
 <h1>Rechercher</h1>
 
+<aside>
 <h2>Rechercher un compte</h2>
 <div>
 <form action="Recherche.php" method="POST">
@@ -47,7 +48,7 @@ teteDePage("Noddle : recherche");
 	<p>Type de fichier
 		<ul>
 		<?php
-		$extensions = array('.odt', '.pdf', '.jpg', '.jpeg', '.png');
+		$extensions = array('.odt', '.pdf', '.jpg', '.jpeg', '.png', '.txt');
 		foreach ($extensions as $ext) { ?>
 			<li><input 
 					type="checkbox" 
@@ -74,19 +75,18 @@ teteDePage("Noddle : recherche");
 	<p><input type="submit" value="Rechercher"></p>
 </form>
 </div>
+</aside>
 
 <h2>Résultats de la recherche</h2>
+
+<pre>
+<?php print_r($_POST); ?>
+</pre>
 
 <?php
 
 require_once("RequeteSQL.php");
 
-/*
-echo "BONJOUR<pre>";
-print_r($_POST);
-echo "</pre>";
-echo ($_POST["description"] == NULL)."<br>";
-*/
 
 // on prétraite le tableau POST pour obtenir
 // $attributs : tableau indicé des attributs sélectionnés
@@ -108,9 +108,9 @@ if (isset($_POST["table"])) {
 	}
 }
 
-// affiche la requete sql
+// crée et affiche la requete sql
 $requete = creationRequete($attributs, $table, $conditions);
-echo "<br>".$requete;
+echo $requete;
 
 // crée la connexion sql
 $connex = sqlConnexion();
@@ -120,14 +120,20 @@ if ($connex) {
 
 	// parcourt et affiche toutes les publications
 	if ($table == "Publications") {
-		afficherPublications($ligneResultat, $resultat);
+		echo "<br>TRUE";
+		while($ligneResultat) {
+			afficherPublication($ligneResultat);
+			$ligneResultat = mysqli_fetch_assoc($resultat);
+		}
+	// parcourt et affiche tous les comptes
 	} else {
 		while($ligneResultat) {
 			afficherApercuCompte($ligneResultat);
+			$ligneResultat = mysqli_fetch_assoc($resultat);
 		}
 	}
-	
 }
+
 
 ?>
 

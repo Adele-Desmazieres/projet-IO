@@ -25,8 +25,8 @@ teteDePage("Noodle : fil d'actualités");
 </h2>
 
 <p>
-<form action='Recherche.php' method='get'>
-    <input type='search' name='recherche' size='75' placeholder='Vous cherchez quelque chose?'>
+<form action='Recherche.php' method='POST'>
+    <input type='search' name='pseudo' size='75' placeholder='Rechercher un compte'>
     <input type='submit' value='Rechercher' size='20'>
 </form>
 </p>

@@ -7,6 +7,7 @@ $Qui="";
 $erreur="";
 $isAdmin=FALSE;
 $isPrive=FALSE;
+$pageActuelle="Profil.php";
 
 //A qui appartient cette page de profil
 if(isset($_POST['self'])){
@@ -22,7 +23,7 @@ $requeteVerifAdmin="SELECT * FROM admin WHERE (id=".$Qui.");";
 $requeteDesabo="DELETE FROM Abonnements WHERE (Abonne=".$_SESSION['userid'].",".$Qui.");";
 $requeteInfos="SELECT * FROM Users WHERE (userid=".$Qui.");";
 $requeteAbonnement="INSERT INTO Abonnements VALUES (".$_SESSION['userid'].",".$Qui.");";
-$requetePublications = "SELECT nom, description, type, Publications.id, typeA, nomA FROM Publications, Apercus WHERE (auteur= ".$Qui."AND Publications.id=Apercus.id) ORDER BY date DESC;";
+$requetePublications = "SELECT auteur, nom, description, type, Publications.id, typeA, nomA FROM Publications, Apercus WHERE (auteur= ".$Qui." AND Publications.id=Apercus.id) ORDER BY date DESC;";
 $requeteAbonnes= "SELECT count(*) FROM Abonnements WHERE (ABONNEMENT='".$Qui."');";
 $requeteNmbAbonnement="SELECT count(*) FROM Abonnements WHERE (ABONNE='".$Qui."');";
 $requeteVerif="SELECT * FROM Abonnements WHERE (ABONNE=".$_SESSION['userid']." AND ABONNEMENT=".$Qui.");";
@@ -40,8 +41,10 @@ if ( !$connexion ) {
 	if(isset($_POST['supprimer'])){
 		$resultatSupprimer=mysqli_query($connexion,$requeteSupprimer);
 		if(!$resultatSupprimer){ $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
+		$resultatSupprimerBis=mysqli_query($connexion,"DELETE FROM Apercus WHERE id=".$_POST['supprimer'].");");
+		if(!$resultatSupprimerBis){ $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
 		else { $filename=$cheminPublications.$_POST['supprimer'];
-			unlink($filename.$_POST['supprimerType']);unlink ($filename."A".$_POST['supprimerType']);}
+			unlink($filename.$_POST['supprimerType']);unlink ($filename."A".$_POST['supprimerAperType']);}
 	}
 
 	//Recherche des infos du profil
@@ -51,7 +54,8 @@ if ( !$connexion ) {
 	
 	// donne un booléen qui dit si la requête a fonctionnée ou pas
 	$resultat = mysqli_query($connexion, $requetePublications);
-	if ( !$resultat ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
+	if ( !$resultat ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion);
+	echo mysqli_error($connexion); }
 	
 	//On vérifie ici si on est déjà abonné au profil
 	$resultatVerif = mysqli_query($connexion, $requeteVerif);
@@ -116,10 +120,10 @@ if ( !$connexion ) {
 				afficherPublication($ligneDePubli);
 				if($_SESSION['admin']==1 || isset($_POST['self'])){
             ?><form action='<?php echo $pageActuelle; ?>' method='POST'>
-                <?php if(isset($Qui)) { ?> <input type='hidden' name='id' value=<?php echo $Qui; } else { ?>>
-                <input type='hidden' name='id' value=<?php echo $ligneDePubli['auteur']; } ?> >
+                <input type='hidden' name='id' value=<?php echo $ligneDePubli['auteur']; ?> >
                 <input type='hidden' name='supprimer' value='<?php echo $ligneDePubli['id']; ?>'>
                 <input type='hidden' name='supprimerType' value='<?php echo $ligneDePubli['type']; ?>' >
+				<input type='hidden' name='supprimerAperType' value='<?php echo $ligneDePubli['typeA']; ?>' >
                 <input type='submit' value='Supprimer la publication'>
             </form>
             <?php
@@ -138,10 +142,10 @@ if ( !$connexion ) {
 				afficherPublication($ligneDePubli);
 				if($_SESSION['admin']==1 || isset($_POST['self'])){
             ?><form action='<?php echo $pageActuelle; ?>' method='POST'>
-                <?php if(isset($Qui)) { ?> <input type='hidden' name='id' value=<?php echo $Qui; } else { ?>>
-                <input type='hidden' name='id' value=<?php echo $ligneDePubli['auteur']; } ?> >
+                <input type='hidden' name='id' value=<?php echo $ligneDePubli['auteur']; ?> >
                 <input type='hidden' name='supprimer' value='<?php echo $ligneDePubli['id']; ?>'>
                 <input type='hidden' name='supprimerType' value='<?php echo $ligneDePubli['type']; ?>' >
+				<input type='hidden' name='supprimerAperType' value='<?php echo $ligneDePubli['typeA']; ?>' >
                 <input type='submit' value='Supprimer la publication'>
             </form>
             <?php

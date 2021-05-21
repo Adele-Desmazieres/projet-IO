@@ -15,15 +15,12 @@ teteDePage("Noodle : fil d'actualités");
     <?php 
     if(!empty($_SESSION['pseudo'])) {
         echo $_SESSION['pseudo'];
-    } else {
-        if(!empty($_SESSION['pseudo'])) {
-            echo $_SESSION['pseudo'];
-        }
-    }
+    } 
     
     ?> !
 </h2>
 
+<div id='Boutons'>
 <p>
 <form action='Recherche.php' method='POST'>
     <input type='search' name='pseudo' size='75' placeholder='Rechercher un compte'>
@@ -50,21 +47,18 @@ teteDePage("Noodle : fil d'actualités");
     <input type='submit' name='profil' size='20' value='Voir votre profil'>
 </form>
 </p>
-
+</div>
 
 
 <?php
 
- //Supprimer une publication
-    
-
-
 //Affichage des publications des abonnés :
-$connexion = mysqli_connect('localhost','root','','IO_TEST');
+$connexion = mysqli_connect('localhost','root',$mdpBDD,$nomBDD);
 if ( !$connexion ) {
 	$erreur = $erreur."<br>Erreur : impossible de se connecter au SQL.";
 } else {
 
+    //Traitement de requête de suppression
     if(isset($_POST['supprimer'])){
         $requeteSupprimer="DELETE FROM Publications WHERE (id=".$_POST['supprimer'].");";
         $resultatSupprimer=mysqli_query($connexion,$requeteSupprimer);
@@ -84,13 +78,22 @@ if ( !$connexion ) {
         //Ensuite on parcourt chaque abonnement de l'utilisateur
         while($ligneResultatRechercheAbonnements){
             //Puis on affiche les publications de l'abonnement
-            $requeteRecherchePubli="SELECT nom, description, type, id, auteur FROM Publications WHERE auteur=".$ligneResultatRechercheAbonnements['Abonnement']." ORDER BY date DESC;";
+            $requeteRecherchePubli="SELECT * FROM Publications WHERE userid=".$ligneResultatRechercheAbonnements['Abonnement']." ORDER BY date DESC;";
             $resultatRecherchePubli=mysqli_query($connexion,$requeteRecherchePubli);
             if ( !$resultatRecherchePubli ) {
                 $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion);
             } else {
                 $ligneResultatRecherchePubli=mysqli_fetch_assoc($resultatRecherchePubli);
-                afficherPublications($ligneResultatRecherchePubli,$resultatRecherchePubli,"FilActualite.php");
+                if(isset($ligneResultatRecherchePubli)){
+                    while ($ligneResultatRecherchePubli){
+                        //Si on est administrateur, on affiche le bouton supprimer
+                        afficherPublication($connexion,$ligneResultatRecherchePubli);
+                        if($_SESSION['admin']==1){
+                            afficheSupprimer($ligneResultatRecherchePubli,"FilActualite.php");
+                        }
+                        $ligneResultatRecherchePubli=mysqli_fetch_assoc($resultatRecherchePubli);
+                    }
+                } 
             }
             //Passage à l'abonnement suivant
             $ligneResultatRechercheAbonnements=mysqli_fetch_assoc($resultatRechercheAbonnements);
@@ -100,9 +103,6 @@ if ( !$connexion ) {
    
 }
 echo $erreur;
-
-
-    
 
 
 piedDePage();

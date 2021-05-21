@@ -4,23 +4,6 @@ verificationConnexion();
 teteDePage("Noodle : profil");
 
 
-
-//Fonction qui affiche le bouton supprimer
-//Prend en entrée un tableau associatif de résultat SQL dans Publications
-function afficheSupprimer($ligneDePubli) {
-	global $pageActuelle;
-	?>
-	<div>
-	<form action='<?php echo $pageActuelle; ?>' method='POST'>
-        <input type='hidden' name='id' value=<?php echo $ligneDePubli['userid']; ?> >
-        <input type='hidden' name='supprimer' value='<?php echo $ligneDePubli['id']; ?>'>
-        <input type='hidden' name='supprimerType' value='<?php echo $ligneDePubli['extensionArticle']; ?>' >
-		<input type='hidden' name='supprimerAperType' value='<?php echo $ligneDePubli['extensionApercu']; ?>' >
-        <input type='submit' value='Supprimer la publication'>
-    </form></div>
-	<?php
-}
-
 $DejaAbo=-1;
 $Qui="";
 $erreur="";
@@ -125,9 +108,9 @@ if ( !$connexion ) {
 		if($DejaAbo) {
 			$ligneDePubli=mysqli_fetch_assoc($resultat);
 			while ($ligneDePubli) {
-				afficherPublication($ligneDePubli);
+				afficherPublication($connexion,$ligneDePubli);
 				if($_SESSION['admin']==1 || isset($_POST['self'])){
-					afficheSupprimer($ligneDePubli);
+					afficheSupprimer($ligneDePubli,$pageActuelle);
         		}
  
 				$ligneDePubli=mysqli_fetch_assoc($resultat);
@@ -140,9 +123,9 @@ if ( !$connexion ) {
 	} else {
 		$ligneDePubli=mysqli_fetch_assoc($resultat);
 			while ($ligneDePubli) {
-				afficherPublication($ligneDePubli);
+				afficherPublication($connexion,$ligneDePubli);
 				if($_SESSION['admin']==1 || isset($_POST['self'])){
-					afficheSupprimer($ligneDePubli);
+					afficheSupprimer($ligneDePubli,$pageActuelle);
         		}
  
 				$ligneDePubli=mysqli_fetch_assoc($resultat);

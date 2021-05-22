@@ -4,6 +4,7 @@ teteDePage("Noodle : inscription");
 ?>
 
         <h1>Page d'inscription</h1>
+        <main>
         <form action='InscriptionTraitement.php' method="POST">
             <table><tbody>
             <tr>
@@ -23,7 +24,7 @@ teteDePage("Noodle : inscription");
                 <td><input type="date" name="naissance" required></td>
             </tr>
             <tr>
-                <td>Désigner ce compte comme privé</td>
+                <td>Désigner ce compte comme privé (influence la visibilité par défaut de vos publications)</td>
                 <td><input type="checkbox" name="prive" value="Oui"></td>
             </tr>
             <tr>
@@ -33,10 +34,15 @@ teteDePage("Noodle : inscription");
             </tbody></table>
 
             <p>
-                <input type='reset' value='Réinitialiser'>
-                <input type='submit' value='Envoyer' size="20">
+                <input class='button' type='reset' value='Réinitialiser'>
+                <input class='button' type='submit' value='Envoyer'>
             </p>
         </form>
+    <form action="Frontpage.php">
+        <input class='button' type='submit' value="Retour à l'accueil">
+    </form>
+
+</main>
 
 <?php
 piedDePage();

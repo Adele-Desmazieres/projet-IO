@@ -1,14 +1,16 @@
 <?php 
 require_once("BibliothequeFonctions.php");
-teteDePage("Noddle : recherche");
+teteDePage("Noodle : recherche");
+verificationConnexion();
 
 ?>
+
 
 <h1>Rechercher</h1>
 
 <aside>
 <h2>Rechercher un compte</h2>
-<div>
+<div class="cadre">
 <form action="Recherche.php" method="POST">
 	<p>Pseudo <input type="search" name="pseudo" placeholder="Pseudo" value=
 		<?php 
@@ -25,12 +27,12 @@ teteDePage("Noddle : recherche");
 		?>>
 	</p>
 	<input type="hidden" name="table" value="Users">
-	<p><input type="submit" value="Rechercher"></p>
+	<p><input class='button' type="submit" value="Rechercher"></p>
 </form>
 </div>
 
 <h2>Rechercher une publication</h2>
-<div>
+<div class="cadre">
 <form action="Recherche.php" method="POST">
 	<p>Description <input type="search" name="description" placeholder="Description de la publication" value=<?php // cette injection de php permet de préremplir la recherche actuelle avec la dernière
 		if (isset($_POST["description"])) {
@@ -45,7 +47,7 @@ teteDePage("Noddle : recherche");
 	?>>
 	</p>
 	<p>Type de l'article principal
-		<ul>
+		<ul class="alignement">
 		<?php
 		$extensions = array('.odt', '.pdf', '.jpg', '.jpeg', '.png', '.txt');
 		foreach ($extensions as $ext) { ?>
@@ -71,23 +73,29 @@ teteDePage("Noddle : recherche");
 		</ul>
 	</p>
 	<input type="hidden" name="table" value="Publications">
-	<p><input type="submit" value="Rechercher"></p>
+	<p><input class='button' type="submit" value="Rechercher"></p>
 </form>
 </div>
 </aside>
 
+<main>
 <h2>Résultats de la recherche</h2>
 
 
+<?php
+
+//require_once("RequeteSQL.php");
+// crée la connexion sql
+$connex = sqlConnexion();
+
+/*
 <pre>
 <?php print_r($_POST); ?>
 </pre>
+*/
+$attributs = array();
+$conditions = array();
 
-<?php
-
-require_once("RequeteSQL.php");
-// crée la connexion sql
-$connex = sqlConnexion();
 
 // on prétraite le tableau POST pour obtenir
 // $attributs : tableau indicé des attributs sélectionnés
@@ -96,12 +104,11 @@ $connex = sqlConnexion();
 if (isset($_POST["table"])) {
 	$table = $_POST["table"];
 	if ($_POST["table"] == "Users") {
-		$attributs = array("pseudo, mail, visibilite, admin");
+		$attributs = array("*");
 	} else {
 		$attributs = array("*"); 
 	}
 
-	$conditions = array();
 	foreach ($_POST as $clef => $val) {
 		if ($clef == "pseudo") {
 			$useridSQL = mysqli_query($connex, "SELECT userid FROM Users WHERE pseudo LIKE '%".$val."%';");
@@ -114,17 +121,26 @@ if (isset($_POST["table"])) {
 			$conditions[$clef] = $val;
 		}
 	}
-}
+	// crée la requete sql
+	$requete = creationRequete($attributs, $table, $conditions);
+} else {
+	$table = "Publications";
+	$requete = "SELECT * FROM Publications;";
+} 
 
-// crée et affiche la requete sql
-$requete = creationRequete($attributs, $table, $conditions);
-echo $requete;
+//echo $requete;
+
 
 if ($connex) {
 	//echo "<br>connexion réussie";
 	$resultat = mysqli_query($connex, $requete);
 	//echo mysqli_error($connex);
-	$ligneResultat = mysqli_fetch_assoc($resultat);
+	if ($resultat) {
+		$ligneResultat = mysqli_fetch_assoc($resultat);
+	} else {
+		$ligneResultat = "";
+	}
+	
 
 	// parcourt et affiche toutes les publications
 	if ($table == "Publications") {
@@ -133,6 +149,7 @@ if ($connex) {
 			//echo "<br>visibilité : ".$ligneResultat["visibilite"]; 
 			if ($ligneResultat["visibilite"] == 1) {
 				afficherPublication($connex, $ligneResultat);
+				
 			}
 			$ligneResultat = mysqli_fetch_assoc($resultat);
 		}
@@ -140,15 +157,19 @@ if ($connex) {
 	} else {
 		while($ligneResultat) {
 			afficherApercuCompte($connex, $ligneResultat);
+			echo "<br>";
 			$ligneResultat = mysqli_fetch_assoc($resultat);
 		}
 	}
 }
 
-
 ?>
 
+<div>
+	<a href="#top" class="button">Remonter</a>
+</div>
 
+</main>
 
 
 <?php

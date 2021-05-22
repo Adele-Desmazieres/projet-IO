@@ -1,5 +1,8 @@
 <?php
-session_start();
+if (session_status() == 0) {
+    session_start();
+}
+
 $erreur="";
 # Verif. de Session
 # if($_COOKIE['mdp']== NULL){  exit ("<a href='Frontpage.php'> Vous n'etes pas connecté</a>"); }
@@ -11,6 +14,9 @@ verificationConnexion();
 teteDePage("Noodle : fil d'actualités");
 ?>
 
+<h1>Fil d'actualités</h1>
+
+<main>
 <h2>Bonjour 
     <?php 
     if(!empty($_SESSION['pseudo'])) {
@@ -19,35 +25,6 @@ teteDePage("Noodle : fil d'actualités");
     
     ?> !
 </h2>
-
-<div id='Boutons'>
-<p>
-<form action='Recherche.php' method='POST'>
-    <input type='search' name='pseudo' size='75' placeholder='Rechercher un compte'>
-    <input type='submit' value='Rechercher' size='20'>
-</form>
-</p>
-
-<p>
-<form action='Publier.php' method='get'>
-    <input type='submit' name='Publier' size='20' value='Page de publication'>
-</form>
-</p>
-
-<p>
-<form action='Frontpage.php' method='get'>
-    <input type='submit' name='deconnexion' size='20' value='Se déconnecter'>
-</form>
-</p>
-
-<p>
-<form action='Profil.php' method='POST'>
-    <input type='hidden' name='self' value='TRUE'>
-    <input type='hidden' name='pseudo' value='<?php echo $_SESSION['pseudo']; ?>'>
-    <input type='submit' name='profil' size='20' value='Voir votre profil'>
-</form>
-</p>
-</div>
 
 
 <?php

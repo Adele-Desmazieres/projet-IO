@@ -11,6 +11,7 @@ $isAdmin=FALSE;
 $isPrive=FALSE;
 $pageActuelle="Profil.php";
 
+
 //A qui appartient cette page de profil
 if(isset($_POST['self'])){
 	// soi meme
@@ -20,14 +21,15 @@ if(isset($_POST['self'])){
 	$Qui=$_POST["id"];
 }
 
+
 //Déclaration des requêtes SQL
-$requeteDesabo="DELETE FROM Abonnements WHERE (Abonne=".$_SESSION['userid'].", Abonnement=".$Qui.");";
+$requeteDesabo="DELETE FROM Abonnements WHERE (Abonne=".$_SESSION['userid']." AND Abonnement=".$Qui.");";
 $requeteInfos="SELECT * FROM Users WHERE (userid=".$Qui.");";
 $requetePublications="SELECT * FROM Publications WHERE userid=".$Qui.";";
 $requeteAbonnement="INSERT INTO Abonnements VALUES (".$_SESSION['userid'].",".$Qui.");";
 $requeteAbonnes= "SELECT count(*) FROM Abonnements WHERE (ABONNEMENT='".$Qui."');";
 $requeteNmbAbonnement="SELECT count(*) FROM Abonnements WHERE (ABONNE='".$Qui."');";
-$requeteVerif="SELECT * FROM Abonnements WHERE (ABONNE=".$_SESSION['userid']." AND ABONNEMENT=".$Qui.");";
+$requeteVerif="SELECT Abonne FROM Abonnements WHERE (ABONNE=".$_SESSION['userid']." AND ABONNEMENT=".$Qui.");";
 if(isset($_POST['supprimer'])) { $requeteSupprimer="DELETE FROM Publications WHERE (id=".$_POST['supprimer'].");"; }
 $connexion = mysqli_connect('localhost','root',$mdpBDD,$nomBDD); 
 
@@ -50,6 +52,41 @@ if ( !$connexion ) {
 		}
 	}
 
+	//On vérifie ici si on est déjà abonné au profil dans la BDD
+	$resultatVerif = mysqli_query($connexion, $requeteVerif);
+	if ( !$resultatVerif ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
+	//Vérification du "déjà abonné"
+	$resultatVerif=mysqli_fetch_row($resultatVerif);
+	if(isset($resultatVerif) && $resultatVerif[0]==$_SESSION["userid"]){ $DejaAbo=TRUE; }
+	else { $DejaAbo=FALSE; }
+
+	//Ajout/Retrait d'un abonné
+	if(isset($_POST['AbPlus'])){
+		if($_POST['AbPlus']==2) {
+			if($DejaAbo) {
+				//Query de désabonnement
+				$resultatDesabo=mysqli_query($connexion,$requeteDesabo);
+				if ( !$resultatDesabo ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
+			}	
+		} else {
+			if(!$DejaAbo) {
+				//Query d'abonnement
+				$resultatAbonnement = mysqli_query($connexion, $requeteAbonnement);
+				if ( !$resultatAbonnement ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
+			}
+		}
+	}
+
+	//On REvérifie ici si on est déjà abonné au profil dans la BDD
+	$resultatVerif = mysqli_query($connexion, $requeteVerif);
+	if ( !$resultatVerif ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
+	//Re-Vérification du "déjà abonné"
+	$resultatVerif=mysqli_fetch_row($resultatVerif);
+	if(isset($resultatVerif) && $resultatVerif[0]==$_SESSION["userid"]){ $DejaAbo=TRUE; }
+	else { $DejaAbo=FALSE; }
+
+	
+
 	//Recherche des infos du profil
 	$resultatInfos = mysqli_query($connexion, $requeteInfos);
 	if ( !$resultatInfos ) { echo $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
@@ -60,22 +97,7 @@ if ( !$connexion ) {
 	if ( !$resultat ) { echo $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion);
 	echo mysqli_error($connexion); }
 	
-	//On vérifie ici si on est déjà abonné au profil
-	$resultatVerif = mysqli_query($connexion, $requeteVerif);
-	if ( !$resultatVerif ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
 
-	//Ajout/Retrait d'un abonné
-	if(isset($POST_['AbPlus'])){
-		if($POST_['AbPlus']==2) {
-			//Query de désabonnement
-			$resultatDesabo=mysqli_query($connexion,$requeteDesabo);
-			if ( !$resultatDesabo ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
-		} else {
-			//Query d'abonnement
-			$resultatAbonnement = mysqli_query($connexion, $requeteAbonnement);
-			if ( !$resultatAbonnement ) { $erreur = $erreur."<br>Erreur : requête invalide : ".mysqli_error($connexion); }
-		}
-	}
 
 	//Recherche du nombre d'abonnés et d'abonnements
 	$resultatAbonnes=mysqli_query($connexion, $requeteAbonnes);
@@ -86,17 +108,16 @@ if ( !$connexion ) {
 	//Verification d'état administrateur du profil
 	if($resultatInfos['admin']==1) { $isAdmin=TRUE; }
 
-	//Vérification du "déjà abonné"
-	$resultatVerif=mysqli_fetch_row($resultatVerif);
-	if(isset($resultatVerif[0])){ $DejaAbo=FALSE; }
-	else { $DejaAbo=TRUE; }
-
+	
 	//Vérification dans la table SQL prive
 	if($resultatInfos['visibilite']==0) { $isPrive=1; }
 
 	//Affichage des infos du profil
 	?>
-	<h1>Page de profil de <?php echo $resultatInfos['pseudo']; if($isAdmin){ echo " (Administrateur)"; } ?></h1><br>
+	
+	<h1>Page de profil de <?php echo $resultatInfos['pseudo']; if($isAdmin){ echo " (Administrateur)"; } ?></h1>
+	
+	<main>
 	<p>Date de naissance : <?php echo $resultatInfos['birthdate'];?></p>
 	<p>Adresse mail de contact : <?php if(($isPrive && $DejaAbo) || !$isPrive)echo $resultatInfos['mail'];?></p>
 	<?php
@@ -145,7 +166,8 @@ if($Qui!=$_SESSION['userid'] && !$DejaAbo){
 	<p>
 <form action='Profil.php' method='POST'>
     <input type='hidden' name='AbPlus' value=1>
-    <input type='submit' name='profil' size='20' value="S'abonner à ce profil">
+	<input type='hidden' name='id' value=<?php echo $Qui; ?> >
+    <input class='button' type='submit' name='profil' size='20' value="S'abonner à ce profil">
 </form>
 </p>
 
@@ -159,7 +181,8 @@ if($Qui!=$_SESSION['userid'] && $DejaAbo){
 	<p>
 <form action='Profil.php' method='POST'>
     <input type='hidden' name='AbPlus' value=2>
-    <input type='submit' name='profil' size='20' value="Se désabonner de ce profil">
+	<input type='hidden' name='id' value=<?php echo $Qui; ?> >
+    <input class='button' type='submit' name='profil' size='20' value="Se désabonner de ce profil">
 </form>
 </p>
 
@@ -167,14 +190,15 @@ if($Qui!=$_SESSION['userid'] && $DejaAbo){
 
 <?php
 }
+
 //Bouton pour revenir au fil d'actualité
 ?>
-
 <div>
-<form action='FilActualite.php'>
-    <input type='submit' name='retour' value="Retour au fil d'actualité">
-</form>
+	<a href="#top" class="button">Remonter</a>
 </div>
+
+</main>
+
 
 <?php
 piedDePage();

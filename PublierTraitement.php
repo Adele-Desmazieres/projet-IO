@@ -10,7 +10,7 @@ teteDePage("Noodle : publication");
 // Dans le dossier Publications, nom du fichier enregistré et de son aperçu :
 // "id.type"
 // "idA.type"
-
+  echo "<main>";
 
   $pseudo=$_SESSION['pseudo']; // récupère le pseudo de l'auteur
   //$cheminPublications = '../Publications/'; // initiée variable globale dans BibliothequeFonctions.php
@@ -126,11 +126,11 @@ teteDePage("Noodle : publication");
 
               // déplace le fichier uploadé dans le dossier Publications
               if ($contenuMoved && $apercuMoved) { // si la fonction renvoie TRUE, c'est que ça a fonctionné...
-                  echo 'Upload effectué avec succès !'; 
+                  echo '<h2>Upload effectué avec succès !<h2>'; 
                   ?>
 
                   <form action='FilActualite.php'>
-                  <input type='submit' value='Retour à la page principale'>
+                  <input class="button" type='submit' value='Retour à la page principale'>
                   </form>
 
                   <?php   
@@ -154,6 +154,9 @@ teteDePage("Noodle : publication");
   
     echo $erreur;
     //echo error_reporting(E_ALL);
+
+
+    echo "</main>";
 
 piedDePage();
 

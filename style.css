@@ -1,75 +1,185 @@
- body {
-   color: seagreen;
-   background-color: azure;
- }
- 
- h1  {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: larger;
-    color: #009;
-    font-size: 1em;
-    margin-bottom: .3em;
-    text-align: center;
-    text-decoration: underline;
-  }
+/* couleurs :
+bleu roi : #6080E9
+violet gris : #B8A1C7
+rose pale : #F3EEF7
+violet foncé : #8A648F
+*/
 
-  h2  {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: large;
-    color: rgb(0, 61, 153);
-    font-size: 1em;
+
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+  background-color: #F3EEF7;
+  text-align: center;
+  margin: 0;
+
+  display: grid;
+  grid-template-columns: 30% 40% 30%;
+  grid-template-areas: 
+  ". bandeau ."
+  ". header ."
+  "menu main sidebar";
+}
+
+.button {
+  
+  background-color: #6080E9;
+  border: 0px solid #6080E9;
+  border-radius: 12px;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  width: 256px;
+  transition: 0.3s;
+  
+}
+
+.button:hover {
+  /*opacity: 0.8;*/
+  background-color: #B8A1C7;
+  /*color: #6080E9;*/
+}
+ 
+h1  {
+    font-size: xx-large;
+    color: #6080E9;
+    margin-bottom: .5em;
+    text-align: center;
+    text-decoration:overline underline #B8A1C7;
+    grid-area: header;
+    grid-column-start: 1;
+    grid-column-end: 4;
+}
+
+h2  {
+    font-size: x-large;
+    color: #6080E9;
     margin-bottom: .3em;
     text-align: center;
-    text-decoration: underline;
-  }
-  
-  table {
-    margin: .3em;
+    text-decoration: underline dotted #B8A1C7;
+}
+
+.bandeau {
+  border: 10px solid #8A648F;
+  display: inline-block;
+  margin: 0;
+  background-color: #8A648F;
+  color: #F3EEF7;
+  text-align: left;
+  text-shadow: 2px 2px rgb(0, 0, 0);
+  font-weight: bold;
+  font-size: large;
+  grid-column-start: 1;
+  grid-column-end: 4;
+  grid-row-start: 1;
+  grid-row-end: 2;
+}
+
+table {
+    margin: auto;
     width: 290px;
-  }
+    table-layout: fixed;
+    width: 100%;   
+}
+
   
-  th {
-    padding: .2em;
-  }
-  
-  td {
-    background-color: rgb(170, 235, 255);
-    border: 2px solid rgb(0, 79, 153);
+td {
+    background-color: #B8A1C7;
+    border: 0px solid #6080E9;
     padding-left: 1em;
     padding-right: 1em;
     padding-top: 1em;
     padding-bottom: 1em;
     text-decoration:solid;
-    color: seagreen;
+    color: rgb(0, 0, 0);
     font-size: large;
     font-weight: bold;
-  }
-  
-  #trHeader {
-    color: #900;
-    text-decoration: underline;
-  }
+}
 
-  #Present {
-    font-family: Arial, Helvetica, sans-serif;
+#presentation { /* présentation 2 lignes frontpage */
     font-size: medium;
     text-align: left;
-    color:seagreen;
-    margin-left: 1em;
-  }
+    color:rgb(0, 0, 0);
+    padding: 1em;
+}
 
-  #Boutons {
+#Liens {
     display: inline-block;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: larger;
-    color: #009;
-    font-size: 1em;
-    margin-bottom: .3em;
-    text-align:right;
-    margin-left: 1em;
-  }
+}
 
-  #Liens {
-    display: inline-block;
-    font-family: Arial, Helvetica, sans-serif;
-  }
+div{
+  margin-top: 3px;
+  margin-bottom: 3px;
+  margin-right: 50px;
+  margin-left: 50px;
+}
+
+.cadre {
+  border: 2px solid #B8A1C7;
+}
+
+aside {
+  grid-area: sidebar;
+}
+
+main {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+
+.alignement {
+  /*border: 1px solid rgb(0, 0, 0);*/
+  display: inline-block;
+  text-align: left;
+}
+
+.buttonRed {
+  background-color: #F3EEF7;
+  border: 2px solid #BE6060;
+  border-radius: 12px;
+  color: #BE6060;
+  padding: 0.5em 0.5em;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  width: auto;
+  transition: 0.3s;
+}
+
+.buttonRed:hover {
+  background-color: #BE6060;
+  color: white;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.buttonProfil {
+  background-color: #F3EEF7;
+  border: 2px solid #8A648F;
+  border-radius: 12px;
+  color: #8A648F;
+  padding: 0.5em 0.5em;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  width: 40%;
+  transition: 0.3s;
+}
+
+.buttonProfil:hover {
+  background-color: #8A648F;
+  color: white;
+}
+
+

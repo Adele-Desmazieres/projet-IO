@@ -4,6 +4,9 @@ teteDePage("Noodle : connexion");
 ?>
 
 <h1>Page de connexion</h1>
+
+
+<main>
 <form action='ConnexionTraitement.php' method="POST">
     <div><table><tbody>
         <tr>
@@ -23,10 +26,16 @@ teteDePage("Noodle : connexion");
     </tbody></table></div>
 
     <div>
-        <input type='reset' value='Réinitialiser'>
-        <input type='submit' value='Envoyer'>
+        <input class='button' type='reset' value='Réinitialiser'>
+        <input class='button' type='submit' value='Envoyer'>
     </div>
+    </form>
+<form action="Frontpage.php">
+    <input class='button' type='submit' value="Retour à l'accueil">
 </form>
+
+</main>
+
 
 <?php
 piedDePage();

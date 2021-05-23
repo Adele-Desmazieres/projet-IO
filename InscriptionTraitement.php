@@ -57,7 +57,7 @@ if(count(probleme($POSTsansAdmin))==0) {
     ?>
 
     <form action='Inscription.php' method='POST'>
-        <input type='submit' value='Retour'>
+        <input class='button' type='submit' value='Retour'>
     </form>
     <?php
     exit("<p class='erreur'>Erreur : un des champs est vide.</p>");
@@ -122,12 +122,12 @@ if(!$connex){
 
 <div>
 <form action='Frontpage.php'>
-    <input type='submit' value='Retour'> 
+    <input class='button' type='submit' value='Retour'> 
 </form>
 </div>
 <div>
 <form action='FilActualite.php' > 
-    <input type='submit' value="Accéder à son fil d'actualité"> 
+    <input class='button' type='submit' value="Accéder à son fil d'actualité"> 
 </form>
 </div>
 

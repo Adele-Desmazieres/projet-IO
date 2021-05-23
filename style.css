@@ -15,35 +15,11 @@ body {
   margin: 0;
 
   display: grid;
-  grid-template-columns: 30% 40% 30%;
+  grid-template-columns: 27% 46% 27%;
   grid-template-areas: 
   ". bandeau ."
   ". header ."
   "menu main sidebar";
-}
-
-.button {
-  
-  background-color: #6080E9;
-  border: 0px solid #6080E9;
-  border-radius: 12px;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  width: 256px;
-  transition: 0.3s;
-  
-}
-
-.button:hover {
-  /*opacity: 0.8;*/
-  background-color: #B8A1C7;
-  /*color: #6080E9;*/
 }
  
 h1  {
@@ -114,10 +90,10 @@ td {
 }
 
 div{
-  margin-top: 3px;
-  margin-bottom: 3px;
-  margin-right: 50px;
-  margin-left: 50px;
+  margin-top: 2%;
+  margin-bottom: 2%;
+  margin-right: 10%;
+  margin-left: 10%;
 }
 
 .cadre {
@@ -139,19 +115,46 @@ main {
   text-align: left;
 }
 
-.buttonRed {
-  background-color: #F3EEF7;
-  border: 2px solid #BE6060;
+.button {
+  
+  background-color: #6080E9;
+  border: 2px solid #6080E9;
   border-radius: 12px;
-  color: #BE6060;
-  padding: 0.5em 0.5em;
+  color: white;
+  padding: 8px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
   cursor: pointer;
-  width: auto;
+  width: 80%;
+  white-space:normal !important;
+  word-wrap:break-word;
   transition: 0.3s;
+  
+}
+
+.button:hover {
+  /*opacity: 0.8;*/
+  background-color: #B8A1C7;
+  border: 2px solid #B8A1C7;
+  /*color: #6080E9;*/
+}
+
+.buttonRed {
+  background-color: #F3EEF7;
+  border: 2px solid #BE6060;
+  border-radius: 12px;
+  color: #BE6060;
+  padding: 8px;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  width: 60%;
+  white-space:normal !important;
+  word-wrap:break-word;
+  margin-bottom: 1em;
 }
 
 .buttonRed:hover {
@@ -168,13 +171,14 @@ html {
   border: 2px solid #8A648F;
   border-radius: 12px;
   color: #8A648F;
-  padding: 0.5em 0.5em;
-  text-decoration: none;
+  padding: 8px ;
   display: inline-block;
   font-size: 16px;
   cursor: pointer;
-  width: 40%;
   transition: 0.3s;
+  width: 80%;
+  white-space:normal !important;
+  word-wrap:break-word;
 }
 
 .buttonProfil:hover {

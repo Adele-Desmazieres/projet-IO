@@ -118,15 +118,22 @@ if ( !$connexion ) {
 	<h1>Page de profil de <?php echo $resultatInfos['pseudo']; if($isAdmin){ echo " (Administrateur)"; } ?></h1>
 	
 	<main>
+	<h2>Informations du profil</h2>
+	<div class='cadre'>
 	<p>Date de naissance : <?php echo $resultatInfos['birthdate'];?></p>
 	<p>Adresse mail de contact : <?php if(($isPrive && $DejaAbo) || !$isPrive)echo $resultatInfos['mail'];?></p>
 	<?php
 
 	//Affichage des publications si l'utilisateur est abonné ou si c'est lui même
-	
+		//Affichage du nombre d'abonnés + d'abonnements
+		$resultatAbonnes=mysqli_fetch_row($resultatAbonnes);
+		$resultatNmbAbonnement=mysqli_fetch_row($resultatNmbAbonnement);
+		echo "<p>Nombre d'abonnés : ".$resultatAbonnes[0]."</p><p>Nombre d'abonnements : ".$resultatNmbAbonnement[0]."</p></div>";
+
 	//Conditions de visualisation
 	if($isPrive) {
 		if($DejaAbo) {
+			echo "<h2>Publications</h2>";
 			$ligneDePubli=mysqli_fetch_assoc($resultat);
 			while ($ligneDePubli) {
 				afficherPublication($connexion,$ligneDePubli);
@@ -142,6 +149,7 @@ if ( !$connexion ) {
 			echo "Ce compte est privé, abonnez vous pour regarder ses publications";
 		}	
 	} else {
+		echo "<h2>Publications</h2>";
 		$ligneDePubli=mysqli_fetch_assoc($resultat);
 			while ($ligneDePubli) {
 				afficherPublication($connexion,$ligneDePubli);
@@ -153,10 +161,7 @@ if ( !$connexion ) {
 			}
 	}
 
-	//Affichage du nombre d'abonnés + d'abonnements
-	$resultatAbonnes=mysqli_fetch_row($resultatAbonnes);
-	$resultatNmbAbonnement=mysqli_fetch_row($resultatNmbAbonnement);
-	echo "<p>Nombre d'abonnés : ".$resultatAbonnes[0].",  Nombre d'abonnements : ".$resultatNmbAbonnement[0]."</p>";
+
 }
 
 //Bouton d'abonnement (apparaît seulement si on est pas abonné OU si on est pas sur notre propre profil)

@@ -46,7 +46,7 @@
 
                 <form action='Connexion.php' method="POST">
                     <input type='hidden' name='pseudo' value="<?php echo $_POST["pseudo"];?>" >
-                    <input type='submit' value='Retour'>
+                    <input class='button' type='submit' value='Retour'>
                 </form>
                 <?php
             }
@@ -59,7 +59,7 @@
         }
         ?>
         <form action='Connexion.php'>
-            <input type='submit' value='Retour'>
+            <input class='button' type='submit' value='Retour'>
         </form>
         </div>
     <?php 
